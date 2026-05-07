@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>funnel-skills — One plugin. Ten agents. Funnels in five minutes.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <span class="brand">
+      <span class="brand-mark"></span>
+      <span>funnel-skills</span>
+    </span>
+    <span class="nav-cta">
+      <span class="dot"></span>v1.0.1 · live on GitHub
+    </span>
+  </div>
+</nav>
+
+<!-- 1. HERO / HOOK -->
+<section class="section hero" id="hero">
+  <div class="bg-grid"></div>
+  <div class="container">
+    <span class="eyebrow reveal">For agency owners and solo founders</span>
+    <h1 class="display reveal">
+      Funnels take a&nbsp;week.<br>
+      <span class="accent">Now they take five minutes.</span>
+    </h1>
+    <p class="lede reveal">
+      One slash command. Ten specialist agents. Page copy, 21 emails,
+      a 12-beat VSL, a branded landing page, and ad-builder prompts —
+      all from one paste.
+    </p>
+    <div class="cta-row reveal">
+      <span class="badge"><span class="badge-dot"></span> Built for Claude Code</span>
+      <span class="badge muted">No terminal · No npm · No symlinks</span>
+    </div>
+    <div class="hero-marquee reveal">
+      <span>market intelligence</span>
+      <span>·</span>
+      <span>offer architecture</span>
+      <span>·</span>
+      <span>strategy</span>
+      <span>·</span>
+      <span>hooks</span>
+      <span>·</span>
+      <span>page copy</span>
+      <span>·</span>
+      <span>21 emails</span>
+      <span>·</span>
+      <span>VSL script</span>
+      <span>·</span>
+      <span>branded landing page</span>
+      <span>·</span>
+      <span>builder prompts</span>
+      <span>·</span>
+      <span>post-launch audit</span>
+    </div>
+  </div>
+</section>
+
+<!-- 2. THE FRUSTRATION (BEFORE) -->
+<section class="section problem" id="problem">
+  <div class="container">
+    <span class="eyebrow reveal">The before state</span>
+    <h2 class="reveal">Building one funnel takes a week.<br>And eats your soul.</h2>
+    <div class="tab-stack reveal">
+      <div class="tab"><span class="t-icon">🔍</span> Reddit + Trustpilot — find pain points</div>
+      <div class="tab"><span class="t-icon">📝</span> ChatGPT — write the offer</div>
+      <div class="tab"><span class="t-icon">📐</span> Whiteboard the funnel</div>
+      <div class="tab"><span class="t-icon">🪝</span> Generate hook ideas in another tab</div>
+      <div class="tab"><span class="t-icon">📄</span> Long-form sales copy in another</div>
+      <div class="tab"><span class="t-icon">📧</span> 21 emails… start, give up, restart</div>
+      <div class="tab"><span class="t-icon">🎬</span> VSL scriptwriter blocks you for 2 days</div>
+      <div class="tab"><span class="t-icon">🎨</span> Designer brief, wait, revise, wait, revise</div>
+      <div class="tab"><span class="t-icon">🛠</span> GHL / ClickFunnels / Framer rebuild</div>
+      <div class="tab"><span class="t-icon">⏰</span> 6–8 days. Per client.</div>
+    </div>
+    <p class="lede reveal" style="margin-top:48px;">
+      Twelve tabs. Eight tools. Three context switches per hour.
+      Half the work is copy-pasting between them. The other half is
+      remembering which AI you used for which thing.
+    </p>
+  </div>
+</section>
+
+<!-- 3. BEFORE / AFTER -->
+<section class="section split" id="split">
+  <div class="container">
+    <div class="split-grid">
+      <div class="split-card before reveal">
+        <span class="eyebrow">Before</span>
+        <div class="split-stat"><span class="num">~7</span><span class="lbl">days</span></div>
+        <ul>
+          <li>12 tabs open</li>
+          <li>8 tools, all logged in separately</li>
+          <li>Context-switch tax every 20 min</li>
+          <li>Copy lives in 6 different docs</li>
+          <li>Designer revisions slow the launch</li>
+          <li>Emails get half-written and forgotten</li>
+        </ul>
+      </div>
+      <div class="split-divider"></div>
+      <div class="split-card after reveal">
+        <span class="eyebrow accent">After</span>
+        <div class="split-stat"><span class="num">~5</span><span class="lbl">minutes</span></div>
+        <ul>
+          <li>One slash command in Claude Code</li>
+          <li>Ten specialist agents run in parallel</li>
+          <li>3,500-word page copy, ready to paste</li>
+          <li>21 emails across 4 sequences, done</li>
+          <li>12-beat VSL, teleprompter-ready</li>
+          <li>Branded HTML page + 3 builder prompts</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. THE SOLUTION (overview) -->
+<section class="section solution" id="solution">
+  <div class="container narrow">
+    <span class="eyebrow reveal">The solution</span>
+    <h2 class="reveal">One plugin. Ten agents.<br>Wired together.</h2>
+    <p class="lede reveal">
+      I got tired of building funnels by hand for clients,
+      so I packaged the whole agency workflow as ten specialist
+      Claude agents that hand off to each other — and shipped them
+      as a one-command Claude Code plugin.
+    </p>
+    <div class="install-card reveal">
+      <div class="install-step">
+        <span class="install-num">1</span>
+        <code>/plugin marketplace add naveends798/funnel-skills</code>
+      </div>
+      <div class="install-step">
+        <span class="install-num">2</span>
+        <code>/plugin install funnel-skills@funnel-skills</code>
+      </div>
+      <div class="install-foot">That's the entire install. Restart Claude Code. Done.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. THE TEN AGENTS -->
+<section class="section agents" id="agents">
+  <div class="container">
+    <span class="eyebrow reveal">The ten agents</span>
+    <h2 class="reveal">Each one is a specialist.<br>They hand off in sequence.</h2>
+    <div class="agent-grid">
+      <div class="agent-card reveal">
+        <div class="agent-num">01</div>
+        <h3>market-intelligence</h3>
+        <p>Researches the niche. Builds the ICP. Maps Schwartz's 5 awareness levels. Pulls live language patterns from real Reddit / Trustpilot threads.</p>
+        <div class="agent-out">→ <code>01-market.json</code></div>
+      </div>
+      <div class="agent-card reveal">
+        <div class="agent-num">02</div>
+        <h3>offer-architect</h3>
+        <p>Architects the value stack. Picks the pricing ladder (anchor, charm, decoy). Writes the guarantee. Builds the competitive teardown.</p>
+        <div class="agent-out">→ <code>02-offer.json</code></div>
+      </div>
+      <div class="agent-card reveal">
+        <div class="agent-num">03</div>
+        <h3>strategy-advisor</h3>
+        <p>Picks the right funnel pattern: webinar, VSL, tripwire, quiz, challenge, SLO, or book. Outputs a Mermaid flow with stage-by-stage metrics.</p>
+        <div class="agent-out">→ <code>03-strategy.json</code></div>
+      </div>
+      <div class="agent-card reveal">
+        <div class="agent-num">04</div>
+        <h3>hook-engineer</h3>
+        <p>15 hooks mapped to awareness levels. 3 headline ladders. Ad-ready, scroll-stopping, awareness-tuned.</p>
+        <div class="agent-out">→ <code>04-hooks.json</code></div>
+      </div>
+      <div class="agent-card reveal">
+        <div class="agent-num">05</div>
+        <h3>page-copywriter</h3>
+        <p>3,500+ words across 9 sections. Hero, problem, agitation, solution, mechanism, proof, offer, guarantee, FAQ, final CTA. Ready to paste.</p>
+        <div class="agent-out">→ <code>05-page-copy.json</code></div>
+      </div>
+      <div class="agent-card reveal">
+        <div class="agent-num">06</div>
+        <h3>email-sequence-architect</h3>
+        <p>21 emails across 4 sequences: welcome (5), nurture (7), sales (5), post-purchase (4). Subject + preview + body + delay + CTA.</p>
+        <div class="agent-out">→ <code>06-emails.json</code></div>
+      </div>
+      <div class="agent-card reveal">
+        <div class="agent-num">07</div>
+        <h3>vsl-scriptwriter</h3>
+        <p>12 beats. Hook to close. 12–25 minute target runtime. Teleprompter-ready cadence.</p>
+        <div class="agent-out">→ <code>07-vsl.json</code></div>
+      </div>
+      <div class="agent-card reveal">
+        <div class="agent-num">08</div>
+        <h3>landing-design</h3>
+        <p>Branded HTML + CSS landing page. Plus paste-ready prompts for GoHighLevel AI Studio, ClickFunnels AI, and Framer AI.</p>
+        <div class="agent-out">→ <code>08-design/*</code></div>
+      </div>
+      <div class="agent-card reveal">
+        <div class="agent-num">09</div>
+        <h3>funnel-orchestrator</h3>
+        <p>Reads your intake — URL, PDF, plain notes, or all three mixed — and runs the entire pipeline. Streams progress as each agent finishes.</p>
+        <div class="agent-out">→ orchestrates 1–8</div>
+      </div>
+      <div class="agent-card reveal accent-card">
+        <div class="agent-num">10</div>
+        <h3>funnel-doctor</h3>
+        <p><strong>Post-launch.</strong> Paste your live URL + ad metrics. It WebFetches the page, diffs against the assets, walks the diagnostic tree, returns a punch list with realistic expected lifts.</p>
+        <div class="agent-out">→ <code>09-audit.json</code></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. THE PIPELINE (visual flow) -->
+<section class="section pipeline" id="pipeline">
+  <div class="container">
+    <span class="eyebrow reveal">How it runs</span>
+    <h2 class="reveal">Sequential where it has to be.<br>Parallel where it can be.</h2>
+    <div class="pipe reveal">
+      <div class="pipe-stage">
+        <div class="pipe-num">Stage 1</div>
+        <div class="pipe-box solo">market-intelligence</div>
+      </div>
+      <div class="pipe-arrow"></div>
+      <div class="pipe-stage">
+        <div class="pipe-num">Stage 2</div>
+        <div class="pipe-box solo">offer-architect</div>
+      </div>
+      <div class="pipe-arrow"></div>
+      <div class="pipe-stage">
+        <div class="pipe-num">Stage 3</div>
+        <div class="pipe-box solo">strategy-advisor</div>
+      </div>
+      <div class="pipe-arrow"></div>
+      <div class="pipe-stage">
+        <div class="pipe-num">Stage 4 — parallel</div>
+        <div class="pipe-grid">
+          <div class="pipe-box">hook-engineer</div>
+          <div class="pipe-box">page-copywriter</div>
+          <div class="pipe-box">email-sequence-architect</div>
+          <div class="pipe-box">vsl-scriptwriter</div>
+        </div>
+      </div>
+      <div class="pipe-arrow"></div>
+      <div class="pipe-stage">
+        <div class="pipe-num">Stage 5</div>
+        <div class="pipe-box solo">landing-design</div>
+      </div>
+      <div class="pipe-arrow"></div>
+      <div class="pipe-stage">
+        <div class="pipe-num">Output</div>
+        <div class="pipe-box solo dashboard-box">📊 dashboard opens</div>
+      </div>
+    </div>
+    <p class="lede reveal" style="margin-top:64px; max-width:60ch;">
+      Stages 1–3 build the foundation. Stage 4 runs four agents
+      simultaneously — that's where the time savings come from.
+      Stage 5 takes everything and renders the branded HTML page.
+    </p>
+  </div>
+</section>
+
+<!-- 7. THE FOUR COMMANDS -->
+<section class="section commands" id="commands">
+  <div class="container">
+    <span class="eyebrow reveal">What you actually type</span>
+    <h2 class="reveal">Four commands. That's the whole interface.</h2>
+    <div class="cmd-list">
+      <div class="cmd-row reveal">
+        <code class="cmd">/funnel-intake</code>
+        <span class="cmd-desc">Build a complete funnel. Paste anything: URL, PDF, notes, mixed. Dashboard opens in 5 minutes.</span>
+      </div>
+      <div class="cmd-row reveal">
+        <code class="cmd">/audit</code>
+        <span class="cmd-desc">After launch. Paste live URL + metrics. Get a diagnostic punch list with expected lifts.</span>
+      </div>
+      <div class="cmd-row reveal">
+        <code class="cmd">/funnel-list</code>
+        <span class="cmd-desc">Show all your client funnels in one list, with quick links to each dashboard.</span>
+      </div>
+      <div class="cmd-row reveal">
+        <code class="cmd">/funnel-help</code>
+        <span class="cmd-desc">Reference card right inside Claude Code, anytime you forget anything.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. WHAT YOU GET -->
+<section class="section deliverables" id="deliverables">
+  <div class="container">
+    <span class="eyebrow reveal">What lands in your folder</span>
+    <h2 class="reveal">Every asset. One folder.<br>Every block has a copy button.</h2>
+    <div class="deliv-grid">
+      <div class="deliv reveal">
+        <div class="deliv-num">9</div>
+        <div class="deliv-lbl">section landing page</div>
+        <div class="deliv-desc">3,500+ words. Hero through final CTA. Master Markdown copy-button at the top.</div>
+      </div>
+      <div class="deliv reveal">
+        <div class="deliv-num">21</div>
+        <div class="deliv-lbl">emails</div>
+        <div class="deliv-desc">Welcome (5), nurture (7), sales (5), post-purchase (4). Subject, preview, body, delay, CTA.</div>
+      </div>
+      <div class="deliv reveal">
+        <div class="deliv-num">15</div>
+        <div class="deliv-lbl">hooks + 3 ladders</div>
+        <div class="deliv-desc">Mapped to awareness levels. Ad-ready, headline-tested.</div>
+      </div>
+      <div class="deliv reveal">
+        <div class="deliv-num">12</div>
+        <div class="deliv-lbl">VSL beats</div>
+        <div class="deliv-desc">Hook to close. 12–25 minute runtime. Teleprompter-ready.</div>
+      </div>
+      <div class="deliv reveal">
+        <div class="deliv-num">1</div>
+        <div class="deliv-lbl">branded HTML page</div>
+        <div class="deliv-desc">Live preview with mobile/tablet/desktop toggle. Drop-in ready.</div>
+      </div>
+      <div class="deliv reveal">
+        <div class="deliv-num">3</div>
+        <div class="deliv-lbl">builder prompts</div>
+        <div class="deliv-desc">GoHighLevel AI Studio · ClickFunnels AI · Framer AI. Copy → paste → it builds.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. INSTALL WALKTHROUGH -->
+<section class="section install" id="install">
+  <div class="container narrow">
+    <span class="eyebrow reveal">Install — under 60 seconds</span>
+    <h2 class="reveal">No terminal. No npm. No symlinks.</h2>
+    <ol class="install-list">
+      <li class="install-step-card reveal">
+        <span class="step-num">1</span>
+        <div class="step-body">
+          <h4>Make sure Claude Code is installed</h4>
+          <p>Free at <code>claude.com/claude-code</code>. If you have it, skip.</p>
+        </div>
+      </li>
+      <li class="install-step-card reveal">
+        <span class="step-num">2</span>
+        <div class="step-body">
+          <h4>Open Claude Code in any folder</h4>
+          <p>For each new client, make a new folder so their assets stay isolated. Optional but recommended.</p>
+        </div>
+      </li>
+      <li class="install-step-card reveal">
+        <span class="step-num">3</span>
+        <div class="step-body">
+          <h4>Type these two commands in chat</h4>
+          <pre><code>/plugin marketplace add naveends798/funnel-skills
+/plugin install funnel-skills@funnel-skills</code></pre>
+        </div>
+      </li>
+      <li class="install-step-card reveal">
+        <span class="step-num">4</span>
+        <div class="step-body">
+          <h4>Restart Claude Code once</h4>
+          <p>Close it completely, reopen. It re-reads the plugin on launch.</p>
+        </div>
+      </li>
+      <li class="install-step-card reveal">
+        <span class="step-num">5</span>
+        <div class="step-body">
+          <h4>Type <code>/funnel-intake</code></h4>
+          <p>Paste anything you have about your client. Reply "go". Dashboard opens in 5 minutes.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- 10. CTA -->
+<section class="section cta" id="cta">
+  <div class="container narrow">
+    <h2 class="display reveal">Ship a funnel before lunch.</h2>
+    <p class="lede reveal">
+      Stop wiring eight tools together. Stop briefing designers.
+      Stop staring at a blank page wondering how to start the offer.
+    </p>
+    <div class="cta-buttons reveal">
+      <a class="btn primary" href="https://github.com/naveends798/funnel-skills" target="_blank" rel="noopener">
+        Get it on GitHub
+        <span class="arrow">→</span>
+      </a>
+      <a class="btn ghost" href="https://github.com/naveends798/funnel-skills/blob/main/CHANGELOG.md" target="_blank" rel="noopener">
+        Changelog
+      </a>
+    </div>
+    <div class="cta-foot reveal">
+      MIT licensed. Built by <a href="https://github.com/naveends798" target="_blank" rel="noopener">Naveen Dsouza</a> — funnel agency owner who got tired of building these by hand.
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <span>funnel-skills · v1.0.1</span>
+    <span>github.com/naveends798/funnel-skills</span>
+  </div>
+</footer>
+
+<script>
+// Reveal-on-scroll
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    }
+  }
+}, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.style.transitionDelay = `${Math.min(i * 30, 200)}ms`;
+  io.observe(el);
+});
+
+// Stagger inside grids
+function stagger(selector, step = 60, max = 480) {
+  document.querySelectorAll(selector).forEach((parent) => {
+    [...parent.children].forEach((child, i) => {
+      if (child.classList.contains('reveal')) {
+        child.style.transitionDelay = `${Math.min(i * step, max)}ms`;
+      }
+    });
+  });
+}
+stagger('.tab-stack', 50, 600);
+stagger('.agent-grid', 60, 720);
+stagger('.deliv-grid', 60, 480);
+stagger('.cmd-list', 80, 320);
+stagger('.install-list', 90, 540);
+</script>
+</body>
+</html>
