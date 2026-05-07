@@ -1,0 +1,21 @@
+{
+  "name": "funnel-skills",
+  "version": "1.0.0",
+  "description": "Build a complete client funnel — page copy, 21 emails, VSL, branded landing page, and ad-builder prompts — from a single slash command. Audit it after launch with real metrics.",
+  "author": {
+    "name": "Naveen Dsouza",
+    "url": "https://github.com/naveends798"
+  },
+  "homepage": "https://github.com/naveends798/funnel-skills",
+  "repository": "https://github.com/naveends798/funnel-skills",
+  "license": "MIT",
+  "keywords": [
+    "marketing",
+    "funnel",
+    "copywriting",
+    "landing-page",
+    "agency",
+    "claude-code",
+    "skills"
+  ]
+}

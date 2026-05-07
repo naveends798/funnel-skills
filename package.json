@@ -1,7 +1,7 @@
 {
   "name": "funnel-skills",
-  "version": "0.1.0",
-  "description": "Downloadable Claude Skills bundle for end-to-end funnel buildouts. One slash command, ten agents, full assets + branded landing page + builder prompts.",
+  "version": "1.0.0",
+  "description": "Claude Code plugin: build a complete client funnel — page copy, 21 emails, VSL, branded landing page, ad-builder prompts — from one slash command.",
   "type": "module",
   "private": false,
   "license": "MIT",
@@ -9,10 +9,7 @@
     "dashboard": "open output/*/dashboard/index.html"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "yaml": "^2.5.1",
-    "pdf-parse": "^1.1.1",
-    "marked": "^14.1.0"
+    "pdf-parse": "^1.1.1"
   },
   "engines": {
     "node": ">=20"

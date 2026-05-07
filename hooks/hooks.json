@@ -1,0 +1,14 @@
+{
+  "SessionStart": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "[ -d \"${CLAUDE_PLUGIN_DATA}/node_modules/pdf-parse\" ] || (mkdir -p \"${CLAUDE_PLUGIN_DATA}\" && cp \"${CLAUDE_PLUGIN_ROOT}/package.json\" \"${CLAUDE_PLUGIN_DATA}/package.json\" 2>/dev/null && cd \"${CLAUDE_PLUGIN_DATA}\" && npm install --silent --no-audit --no-fund --omit=dev) >/dev/null 2>&1 || true",
+          "timeout": 120,
+          "async": true
+        }
+      ]
+    }
+  ]
+}

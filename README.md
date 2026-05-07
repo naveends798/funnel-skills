@@ -1,6 +1,6 @@
 # funnel-skills
 
-> One slash command. A complete client funnel — copy, emails, video script, branded landing page, ad-builder prompts. Five minutes from intake to dashboard.
+> One slash command. A complete client funnel — copy, emails, video script, branded landing page, ad-builder prompts. Five minutes from intake to dashboard. Installs as a Claude Code plugin in one command. No terminal.
 
 ---
 
@@ -26,56 +26,24 @@ After you launch the funnel, type `/audit <client>` and Claude does a data-drive
 
 ---
 
-## What you need before you start
+## Install — two commands inside Claude Code
 
-| Thing | Where to get it | Why |
-|---|---|---|
-| **Claude Code** | https://claude.com/claude-code | The interface where you'll type the slash commands |
-| **Node.js 20+** | https://nodejs.org → click the LTS Installer | The engine that runs the helper scripts under the hood |
-| **git** | Already on macOS / Linux. Windows: git-scm.com | To download funnel-skills |
+**You need:** [Claude Code](https://claude.com/claude-code) installed and [Node.js 20+](https://nodejs.org). That's it. No terminal beyond that.
 
-That's it. No paid API keys required (you can add some later for deeper research, but the defaults work fine).
+Open Claude Code in any folder, type these two commands in the chat:
 
----
-
-## Install — pick one path
-
-### Path A — One-line install (fastest)
-
-Open Terminal and paste this:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/naveends798/funnel-skills/main/install.sh | bash
+```
+/plugin marketplace add naveends798/funnel-skills
+/plugin install funnel-skills@funnel-skills
 ```
 
-Hit enter. Wait ~60 seconds. Done.
+Claude Code clones the plugin, registers all 10 skills + 4 slash commands, and runs a one-time background install of `pdf-parse` (so PDF intake works). **Restart Claude Code once** so it loads the new commands. Done.
 
-A welcome page opens in your browser when it finishes.
-
-### Path B — Double-click install (no terminal touching)
-
-1. Go to https://github.com/naveends798/funnel-skills
-2. Click the green **Code** button → **Download ZIP**
-3. Unzip. You'll see a file called `install.command`
-4. **Double-click `install.command`**. Terminal opens, runs the install, prompts you when it's done.
-
-### Path C — Manual install (for the curious)
-
-```bash
-git clone https://github.com/naveends798/funnel-skills.git ~/.funnel-skills
-cd ~/.funnel-skills
-npm install
-mkdir -p ~/.claude/skills ~/.claude/commands
-ln -s ~/.funnel-skills/.claude/skills/* ~/.claude/skills/
-ln -s ~/.funnel-skills/.claude/commands/* ~/.claude/commands/
-echo 'export FUNNEL_SKILLS_HOME=~/.funnel-skills' >> ~/.zshrc
-```
+That's the whole install. No `git clone`. No `npm install`. No `install.sh`. No symlinks. Nothing in `~/.claude/` to manage.
 
 ---
 
 ## How to use it — your first funnel in 5 minutes
-
-After install, **restart Claude Code** (close it and reopen) so it sees the new slash commands.
 
 ### Step 1 — Open Claude Code in any folder
 
@@ -86,7 +54,7 @@ mkdir ~/clients/jane-fitness
 cd ~/clients/jane-fitness
 ```
 
-Open Claude Code in that folder. (In the app, just open the folder in your IDE / Claude Code Desktop.)
+Open Claude Code in that folder.
 
 ### Step 2 — Type the intake command
 
@@ -120,7 +88,7 @@ Brand colors: forest green, ochre, ivory
 Fonts: Fraunces + Inter
 ```
 
-Or the full intake template at `templates/intake.md` if you want every field filled in.
+Or use the full intake template at `templates/intake.md` if you want every field filled in.
 
 Or just paste a URL and some bullet points.
 
@@ -231,7 +199,7 @@ You ship the changes. Run more traffic. Re-run `/audit <client>` to track improv
 
 ## Three example client intakes (try them)
 
-The repo ships with three filled examples so you can run the pipeline end-to-end before doing it for a real client:
+The plugin ships with three filled examples so you can run the pipeline end-to-end before doing it for a real client:
 
 ```
 /funnel-intake templates/intake-fitness-coach.md   # Strong Method, $1,997 1:1 strength
@@ -247,11 +215,11 @@ Each one runs in ~5 min and gives you a complete dashboard for that niche.
 
 By default, the skills use Claude Code's built-in WebSearch. Free, works fine, slightly less depth.
 
-If you want richer market research from real Reddit threads, Trustpilot reviews, and Google data, add ONE of these to `~/.funnel-skills/.env`:
+If you want richer market research from real Reddit threads, Trustpilot reviews, and Google data, export ONE of these in your shell **before launching Claude Code** (e.g. add to `~/.zshrc`):
 
-```env
-APIFY_TOKEN=...           # https://console.apify.com/account/integrations
-OPENROUTER_API_KEY=...    # https://openrouter.ai/keys (single key, hits perplexity/sonar-pro)
+```bash
+export APIFY_TOKEN=...           # https://console.apify.com/account/integrations
+export OPENROUTER_API_KEY=...    # https://openrouter.ai/keys (single key, hits perplexity/sonar-pro)
 ```
 
 The skills auto-detect and use whichever you've set. With both, Apify wins.
@@ -260,42 +228,45 @@ The skills auto-detect and use whichever you've set. With both, Apify wins.
 
 ## Where things live
 
+You don't manage any of this — Claude Code does.
+
 ```
-~/.funnel-skills/                  ← installed code (you don't usually touch this)
-~/.claude/skills/                   ← skills, symlinked from ~/.funnel-skills
-~/.claude/commands/                 ← slash commands, symlinked
+(Claude-Code-managed plugin install)/    ← all the skills, commands, scripts, dashboard template
+(Claude-Code-managed plugin data)/       ← cached node_modules (pdf-parse)
 
 (in whichever folder you run /funnel-intake from):
-output/<client-slug>/               ← your client's funnel
-  ├── intake.json                   ← what Claude understood from your input
-  ├── 01-market.json                ← ICP, awareness levels, pain points
-  ├── 02-offer.json                 ← offer + pricing + guarantee
-  ├── 03-strategy.json              ← funnel pattern picked
-  ├── 04-hooks.json                 ← 15 hooks + ladders
-  ├── 05-page-copy.json             ← full page copy + master Markdown
-  ├── 06-emails.json                ← 21 emails
-  ├── 07-vsl.json                   ← 12-beat VSL script
+output/<client-slug>/                    ← your client's funnel
+  ├── intake.json                        ← what Claude understood from your input
+  ├── 01-market.json                     ← ICP, awareness levels, pain points
+  ├── 02-offer.json                      ← offer + pricing + guarantee
+  ├── 03-strategy.json                   ← funnel pattern picked
+  ├── 04-hooks.json                      ← 15 hooks + ladders
+  ├── 05-page-copy.json                  ← full page copy + master Markdown
+  ├── 06-emails.json                     ← 21 emails
+  ├── 07-vsl.json                        ← 12-beat VSL script
   ├── 08-design/
-  │   ├── landing.html              ← OPEN THIS — branded HTML page
-  │   ├── ghl-ai-studio-prompt.md   ← paste into GoHighLevel
+  │   ├── landing.html                   ← OPEN THIS — branded HTML page
+  │   ├── ghl-ai-studio-prompt.md        ← paste into GoHighLevel
   │   ├── clickfunnels-ai-prompt.md
   │   └── framer-ai-prompt.md
-  ├── 09-audit.json                 ← created when you run /audit
+  ├── 09-audit.json                      ← created when you run /audit
   └── dashboard/
-      └── index.html                ← OPEN THIS — visual control panel
+      └── index.html                     ← OPEN THIS — visual control panel
 ```
+
+Only `output/` lives in your folder. Everything else is plugin code, managed automatically.
 
 ---
 
-## Works in all of these
+## Update / uninstall / reinstall
 
-The skills live at `~/.claude/` — every Anthropic product reads from there. **Install once, use everywhere:**
+Inside Claude Code:
 
-- ✅ **Claude Code** (CLI)
-- ✅ **Claude Code Desktop** (macOS / Windows app)
-- ✅ **Claude Desktop** (macOS / Windows app)
-- ✅ **Conductor** (multi-workspace UI on top of Claude Code)
-- ⚠️ **Codex CLI** — Codex doesn't read Anthropic's Skills format natively. You can still point Codex at any individual `SKILL.md` file and it'll follow the instructions. The helper Node scripts work fine from Codex.
+```
+/plugin update funnel-skills          # latest version
+/plugin uninstall funnel-skills       # remove (your output/ stays put)
+/plugin install funnel-skills@funnel-skills   # reinstall
+```
 
 ---
 
@@ -308,10 +279,11 @@ No, but each new client should be in its own folder so their `output/` stays iso
 Only when:
 - Claude reads URLs you provide (those go through Anthropic's WebFetch)
 - You add an Apify or OpenRouter key — those calls go to those services
+
 Otherwise everything is local to your computer. The dashboard is a static HTML file on disk.
 
 **Can I edit the generated assets?**
-Yes. Every file in `output/<client>/*` is plain JSON or Markdown. Edit them, then re-run `node ~/.funnel-skills/.claude/skills/funnel-orchestrator/scripts/render-dashboard.mjs <client>` to refresh the dashboard.
+Yes. Every file in `output/<client>/*` is plain JSON or Markdown. Edit them, then ask Claude to "re-render the dashboard for `<slug>`" and it'll regenerate.
 
 **The voice on the copy isn't quite my client's. How do I fix it?**
 Add more detail to the intake — paste a discovery-call transcript, link to a podcast they did, or write a paragraph in their actual voice. Re-run `/funnel-intake` with the richer input.
@@ -323,22 +295,10 @@ Type `/funnel-list` in Claude Code.
 Run `open output/<client-slug>/dashboard/index.html` from the folder you built the funnel in.
 
 **Slash commands don't show up in Claude Code.**
-Quit Claude Code completely and reopen it. It re-reads `~/.claude/commands/` on launch.
+Quit Claude Code completely and reopen it. It re-reads installed plugins on launch.
 
----
-
-## Update / uninstall
-
-```bash
-# Update to the latest version
-cd ~/.funnel-skills && git pull && npm install
-
-# Uninstall (keeps your client output)
-~/.funnel-skills/uninstall.sh
-
-# Full removal including all output
-~/.funnel-skills/uninstall.sh --purge
-```
+**Can I install this in Claude Desktop too?**
+Plugins install via Claude Code's plugin system specifically. The skills inside this plugin work in any tool that reads Anthropic's Skills format from `~/.claude/skills/`, but the plugin install command (`/plugin marketplace add ...`) is a Claude Code feature.
 
 ---
 

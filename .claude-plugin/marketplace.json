@@ -1,0 +1,15 @@
+{
+  "name": "funnel-skills",
+  "owner": {
+    "name": "Naveen Dsouza",
+    "url": "https://github.com/naveends798"
+  },
+  "plugins": [
+    {
+      "name": "funnel-skills",
+      "source": "./",
+      "description": "Build a complete client funnel — page copy, 21 emails, VSL, branded landing page, and ad-builder prompts — from one slash command. Audit it after launch with real metrics.",
+      "version": "1.0.0"
+    }
+  ]
+}
