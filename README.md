@@ -258,15 +258,60 @@ Only `output/` lives in your folder. Everything else is plugin code, managed aut
 
 ---
 
-## Update / uninstall / reinstall
+## Updating funnel-skills
 
-Inside Claude Code:
+Three ways to stay current. Pick whichever you prefer.
+
+### Option A — Manual update (recommended for most people)
+
+When you hear about a new release (the changelog is at [CHANGELOG.md](./CHANGELOG.md)), inside Claude Code type:
 
 ```
-/plugin update funnel-skills          # latest version
-/plugin uninstall funnel-skills       # remove (your output/ stays put)
-/plugin install funnel-skills@funnel-skills   # reinstall
+/plugin update funnel-skills
 ```
+
+Claude Code git-pulls the repo, replaces the plugin install, and re-registers everything. New skills, agents, and slash commands appear right after a quick Claude Code restart. Your existing client `output/` folders are untouched — only the plugin code itself updates.
+
+### Option B — Auto-update on launch (set it and forget it)
+
+Inside Claude Code, open the plugin manager (`/plugin`), find the `funnel-skills` marketplace, and toggle **auto-update**. From then on, every Claude Code launch checks the repo and pulls if there's a new commit. You never think about updates again.
+
+### Option C — Pin to a specific version
+
+If you'd rather not be on `main`, point your install at a tagged release. The `version` field in [.claude-plugin/plugin.json](./.claude-plugin/plugin.json) reflects the current tag. Useful if a release ever breaks something for you and you need to pause.
+
+### Uninstall / reinstall
+
+```
+/plugin uninstall funnel-skills                  # remove (your output/ stays put)
+/plugin install funnel-skills@funnel-skills      # reinstall the latest
+```
+
+---
+
+## Releasing new versions (maintainer notes)
+
+If you're forking or maintaining funnel-skills, this is the release flow:
+
+1. Make your changes (new skill, fixed bug, updated copy, whatever).
+2. Bump the version in **all three** of these files — they must stay in sync:
+   - [.claude-plugin/plugin.json](./.claude-plugin/plugin.json) → `"version"`
+   - [.claude-plugin/marketplace.json](./.claude-plugin/marketplace.json) → the `plugins[0].version`
+   - [package.json](./package.json) → `"version"`
+3. Add a new top entry to [CHANGELOG.md](./CHANGELOG.md) describing what changed.
+4. Versioning follows [SemVer](https://semver.org/):
+   - **Patch** (`1.0.1` → `1.0.2`) — typo fixes, docs, internal refactors that don't change behavior
+   - **Minor** (`1.0.x` → `1.1.0`) — new skill, new slash command, new feature, backward-compatible
+   - **Major** (`1.x.x` → `2.0.0`) — breaking change (renamed skill, removed command, output schema change)
+5. Commit, push, and tag the release:
+   ```bash
+   git commit -am "Release v1.1.0: <one-line summary>"
+   git tag v1.1.0
+   git push && git push --tags
+   ```
+6. (Optional but encouraged) Cut a GitHub Release pointing at the tag with the changelog entry as the body — gives users a clean URL to share when announcing updates.
+
+Users on auto-update get the new version on their next Claude Code launch. Users on manual update get it when they run `/plugin update funnel-skills`.
 
 ---
 
