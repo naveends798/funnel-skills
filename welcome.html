@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome to funnel-skills</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0c0f;
+      --bg-elev: #131419;
+      --bg-elev-2: #1a1c22;
+      --fg: #ededee;
+      --fg-dim: #b6b7bb;
+      --fg-mute: #74757b;
+      --line: rgba(255,255,255,0.08);
+      --accent: #e9a23b;
+      --accent-glow: rgba(233,162,59,0.25);
+      --success: #6dd6a8;
+      --font-display: 'Fraunces', serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --r-md: 12px;
+      --r-lg: 18px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; line-height: 1.6; }
+    .bg-mesh {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(900px 600px at 12% 8%, rgba(233,162,59,0.10), transparent 60%),
+        radial-gradient(800px 500px at 88% 20%, rgba(110,193,255,0.06), transparent 65%);
+    }
+    .container { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 80px 32px 120px; }
+
+    .hero { margin-bottom: 64px; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--fg-mute);
+      margin-bottom: 24px;
+    }
+    .badge { display: inline-block; padding: 4px 12px; border: 1px solid var(--accent-glow); border-radius: 100px; color: var(--accent); margin-right: 8px; }
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(48px, 7vw, 88px);
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      margin: 0 0 24px;
+    }
+    .lead {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(20px, 2.5vw, 28px);
+      color: var(--fg-dim);
+      line-height: 1.4;
+      max-width: 60ch;
+      margin: 0 0 40px;
+    }
+
+    .checklist {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: 28px 32px;
+      margin-bottom: 64px;
+    }
+    .checklist-title { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--fg-mute); margin-bottom: 16px; }
+    .check-row { display: flex; align-items: center; gap: 14px; padding: 8px 0; font-size: 16px; }
+    .check { color: var(--success); font-size: 18px; }
+
+    section { margin-bottom: 80px; }
+
+    h2 {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(32px, 4vw, 48px);
+      letter-spacing: -0.015em;
+      margin: 0 0 24px;
+      line-height: 1.1;
+    }
+    p { color: var(--fg-dim); max-width: 64ch; }
+
+    .step {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 24px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--bg-elev);
+      border: 1px solid var(--accent-glow);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-title { font-family: var(--font-display); font-weight: 500; font-size: 22px; margin-bottom: 8px; color: var(--fg); }
+    .step p { margin: 0 0 12px; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      padding: 3px 8px;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--accent);
+    }
+    .cmd {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 8px 0;
+      vertical-align: middle;
+    }
+    .cmd .text {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      padding: 10px 16px;
+      color: var(--accent);
+    }
+    .cmd .copy-btn {
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--bg-elev-2);
+      border: none;
+      border-left: 1px solid var(--line);
+      color: var(--fg-dim);
+      cursor: pointer;
+      letter-spacing: 0.06em;
+    }
+    .cmd .copy-btn:hover { color: var(--accent); }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 24px; }
+    .card {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      padding: 24px;
+    }
+    .card h3 {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 19px;
+      margin: 0 0 8px;
+      color: var(--fg);
+    }
+    .card p { font-size: 14px; line-height: 1.55; margin: 0; }
+
+    .env-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 20px; }
+    .env {
+      padding: 18px;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      text-align: center;
+    }
+    .env .name { font-family: var(--font-display); font-weight: 500; font-size: 17px; color: var(--fg); margin-bottom: 4px; }
+    .env .meta { font-family: var(--font-mono); font-size: 11px; color: var(--fg-mute); letter-spacing: 0.05em; }
+
+    .note {
+      padding: 18px 22px;
+      border-left: 3px solid var(--accent);
+      background: rgba(233,162,59,0.05);
+      border-radius: 0 var(--r-md) var(--r-md) 0;
+      color: var(--fg-dim);
+      font-size: 15px;
+      max-width: 64ch;
+    }
+    .note strong { color: var(--fg); }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: var(--fg-mute);
+      display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    a { color: var(--accent); }
+
+    .toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      padding: 12px 20px;
+      background: var(--bg-elev);
+      border: 1px solid var(--success);
+      color: var(--success);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s var(--ease);
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+
+<main class="container">
+
+  <header class="hero">
+    <div class="eyebrow"><span class="badge">v0.1</span> funnel-skills installed</div>
+    <h1>You're set.</h1>
+    <p class="lead">Two slash commands. Ten skills. A full client funnel built in five minutes — branded HTML page, copy, emails, VSL, and the audit you run after launch.</p>
+  </header>
+
+  <div class="checklist">
+    <div class="checklist-title">What just got installed</div>
+    <div class="check-row"><span class="check">✓</span><span><strong>10 Claude Skills</strong> — linked into your Claude Code config</span></div>
+    <div class="check-row"><span class="check">✓</span><span><strong>4 slash commands</strong> — <code>/funnel-intake</code>, <code>/audit</code>, <code>/funnel-help</code>, <code>/funnel-list</code></span></div>
+    <div class="check-row"><span class="check">✓</span><span><strong>Helper scripts + dashboard template</strong> — at <code>~/.funnel-skills/</code></span></div>
+    <div class="check-row"><span class="check">✓</span><span><strong>Environment variable</strong> <code>FUNNEL_SKILLS_HOME</code> set</span></div>
+  </div>
+
+  <section>
+    <h2>Works in any of these</h2>
+    <p>The skills live at <code>~/.claude/</code> — every Anthropic product reads from here. You don't need to install separately for each.</p>
+    <div class="env-grid">
+      <div class="env"><div class="name">Claude Code</div><div class="meta">CLI</div></div>
+      <div class="env"><div class="name">Claude Code Desktop</div><div class="meta">macOS / Windows app</div></div>
+      <div class="env"><div class="name">Claude Desktop</div><div class="meta">macOS / Windows app</div></div>
+      <div class="env"><div class="name">Conductor</div><div class="meta">multi-workspace UI</div></div>
+    </div>
+    <p style="margin-top: 16px; font-size: 14px; color: var(--fg-mute);">
+      Using <strong style="color: var(--fg-dim);">Codex CLI</strong> instead? The skills here are written in Anthropic's Claude Skills format. Codex doesn't natively read this format — but you can point Codex at any individual <code>SKILL.md</code> file and it'll follow the instructions. Best fit for Codex is letting it run the helper scripts directly: <code>node ~/.funnel-skills/.claude/skills/funnel-orchestrator/scripts/parse-intake.mjs</code>.
+    </p>
+  </section>
+
+  <section>
+    <h2>How to use it</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">Open Claude Code</div>
+        <p>Any folder works. The skills are global — they activate everywhere.</p>
+        <p style="font-size: 14px; color: var(--fg-mute); margin-top: 12px;">Tip: <code>cd</code> into a fresh folder for each new client so their assets stay isolated.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">Type the intake command</div>
+        <div class="cmd">
+          <span class="text">/funnel-intake</span>
+          <button class="copy-btn" data-copy="/funnel-intake">copy</button>
+        </div>
+        <p>Claude asks what you have. <strong style="color: var(--fg);">Paste anything you've got from your client</strong>:</p>
+        <p style="margin-top: 8px;">
+          📎 Their existing site URL · 📄 a PDF (discovery call notes, brand guide) · 📝 plain-text notes · all three at once is fine.
+        </p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">Watch the funnel build itself</div>
+        <p>About 5 minutes. Claude streams progress: market research, offer architecture, hooks, page copy (3,500+ words), 21 emails, VSL script, branded landing page, and AI-builder prompts for GoHighLevel / ClickFunnels / Framer.</p>
+        <p style="margin-top: 12px;">When it's done, a dashboard opens automatically in your browser.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <div class="step-title">Take what you need</div>
+        <p>Every block in the dashboard has a copy button. Two of the most useful tabs:</p>
+        <div class="grid">
+          <div class="card">
+            <h3>📄 Page Copy</h3>
+            <p>"Copy full page Markdown" at the top — paste straight into Webflow / Framer / Wordpress.</p>
+          </div>
+          <div class="card">
+            <h3>🎨 Design</h3>
+            <p>Live preview of the branded HTML page + paste-ready prompts for GoHighLevel AI Studio, ClickFunnels AI, and Framer AI.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div>
+        <div class="step-title">After the funnel is live, audit it</div>
+        <div class="cmd">
+          <span class="text">/audit</span>
+          <button class="copy-btn" data-copy="/audit">copy</button>
+        </div>
+        <p>Once you have real metrics — ad CTR, page conversion, ROAS — type <code>/audit</code>. Claude asks for your live URL + numbers, fetches the actual page, compares against the assets, and tells you specifically what's underperforming and why.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The four slash commands</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><code style="background:transparent;border:none;padding:0;">/funnel-intake</code></h3>
+        <p>Build a complete client funnel from any input. Start here.</p>
+      </div>
+      <div class="card">
+        <h3><code style="background:transparent;border:none;padding:0;">/audit</code></h3>
+        <p>Post-launch data-driven audit. Paste live URL + metrics, get specific fixes.</p>
+      </div>
+      <div class="card">
+        <h3><code style="background:transparent;border:none;padding:0;">/funnel-list</code></h3>
+        <p>List all your client funnels with quick links to their dashboards.</p>
+      </div>
+      <div class="card">
+        <h3><code style="background:transparent;border:none;padding:0;">/funnel-help</code></h3>
+        <p>Quick reference inside Claude Code. Type this whenever you forget something.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Optional — wire up deeper research</h2>
+    <p>By default the skills use Claude Code's built-in WebSearch. Free, works fine. If you want richer market research from Reddit, Trustpilot, and Google data, add one of these to <code>~/.funnel-skills/.env</code>:</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Apify</h3>
+        <p style="margin-bottom: 12px;">Best research depth. Free tier covers most uses.</p>
+        <p><a href="https://console.apify.com/account/integrations" target="_blank">Get a token →</a></p>
+      </div>
+      <div class="card">
+        <h3>OpenRouter (Perplexity)</h3>
+        <p style="margin-bottom: 12px;">Single key, hits perplexity/sonar-pro. Cheap pay-per-call.</p>
+        <p><a href="https://openrouter.ai/keys" target="_blank">Get a key →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="note">
+      <strong>Heads-up about Claude Code:</strong> if you don't have it yet, grab it at
+      <a href="https://claude.com/claude-code" target="_blank">claude.com/claude-code</a>.
+      Once it's running, restart it after install so it sees the new slash commands.
+    </div>
+  </section>
+
+  <footer>
+    <span>funnel-skills v0.1 · MIT license</span>
+    <span><a href="https://github.com/naveends798/funnel-skills" target="_blank">GitHub →</a></span>
+  </footer>
+
+</main>
+
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+document.querySelectorAll('[data-copy]').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    const text = btn.getAttribute('data-copy');
+    try {
+      await navigator.clipboard.writeText(text);
+      const toast = document.getElementById('toast');
+      toast.textContent = 'Copied: ' + text;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1600);
+      btn.textContent = '✓';
+      setTimeout(() => { btn.textContent = 'copy'; }, 1600);
+    } catch {}
+  });
+});
+</script>
+
+</body>
+</html>

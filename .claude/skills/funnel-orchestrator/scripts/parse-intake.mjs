@@ -1,12 +1,26 @@
-// Parse intake from any of: markdown file, plain text file, PDF file, URL, or raw text.
-// Writes output/<slug>/intake.json + copies the original to output/<slug>/intake.md
+// Parse intake from any blob the user paste — can be:
+//   - a single markdown file path
+//   - a single URL
+//   - a single PDF path
+//   - a single chunk of raw text
+//   - ANY MIX of the above in one input (the conversational case from /funnel-intake)
 //
-// usage: node parse-intake.mjs <input>
+// Strategy:
+//   1. Treat input as one big text blob.
+//   2. Extract every URL, fetch each, append text content.
+//   3. Detect any PDF/markdown paths in the blob, parse them, append.
+//   4. Run field extraction on the unified blob.
+//   5. Resolve a slug, write output/<slug>/intake.json + intake.md
 //
-// On success, prints the slug to stdout (last line) so the orchestrator can capture it.
+// Output goes to $PWD/output/<slug>/ — so users can run from any client folder.
+// Helpers (slugify) live next to this script regardless of repo location.
+//
+// usage: node parse-intake.mjs <input>      # one inline arg
+//        node parse-intake.mjs <path/to/blob.md>  # path to a file holding the pasted blob
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync } from 'node:fs';
-import { dirname, basename, extname, join } from 'node:path';
+import { dirname, basename, extname, join, resolve, isAbsolute } from 'node:path';
+import { homedir } from 'node:os';
 import { slugify } from './slugify.mjs';
 
 const ROOT = process.cwd();
@@ -14,65 +28,101 @@ const args = process.argv.slice(2);
 const input = args.join(' ').trim();
 
 if (!input) {
-  console.error('usage: node parse-intake.mjs <markdown-path | pdf-path | url | raw-text>');
+  console.error('usage: node parse-intake.mjs <markdown-path | pdf-path | url | raw-text | path-to-blob>');
   process.exit(1);
 }
 
 let raw = '';
-let originalPath = null;
-let sourceType = 'text';
+const sources = [];
 
-if (/^https?:\/\//i.test(input)) {
-  // URL
-  sourceType = 'url';
-  const r = await fetch(input);
-  if (!r.ok) {
-    console.error(`Failed to fetch ${input}: ${r.status}`);
-    process.exit(1);
-  }
-  raw = await r.text();
-} else if (existsSync(input)) {
-  originalPath = input;
+// If the single arg is a path to a file, load the file as the blob.
+// Otherwise treat the entire arg as the blob.
+if (existsSync(input) && !/\s/.test(input)) {
   const ext = extname(input).toLowerCase();
   if (ext === '.pdf') {
-    sourceType = 'pdf';
     const pdfParse = (await import('pdf-parse')).default;
     const buf = readFileSync(input);
     const parsed = await pdfParse(buf);
     raw = parsed.text;
+    sources.push({ type: 'pdf', path: input });
   } else {
-    sourceType = 'file';
     raw = readFileSync(input, 'utf8');
+    sources.push({ type: 'file', path: input });
   }
 } else {
-  // Treat as raw text
-  sourceType = 'text';
   raw = input;
+  sources.push({ type: 'inline', length: input.length });
 }
 
-// Extract structured fields from the intake markdown.
-// Permissive — the intake.md template uses ## section headers; we match by heuristic.
+// ---- Multi-input enrichment: scan the blob for URLs and file paths ----
+
+const urlRegex = /(https?:\/\/[^\s\)\]\}<>"']+)/gi;
+const urls = [...new Set([...raw.matchAll(urlRegex)].map((m) => m[1].replace(/[.,;:!?]+$/, '')))];
+
+for (const url of urls) {
+  try {
+    const r = await fetch(url, { headers: { 'User-Agent': 'funnel-skills/0.1 (+https://github.com/naveends798/funnel-skills)' } });
+    if (!r.ok) {
+      console.error(`  ! ${url} → ${r.status}`);
+      sources.push({ type: 'url', url, status: r.status, fetched: false });
+      continue;
+    }
+    const html = await r.text();
+    const text = extractTextFromHtml(html);
+    raw += `\n\n## Fetched from ${url}\n\n${text.slice(0, 6000)}`;
+    sources.push({ type: 'url', url, status: 200, fetched: true, length: text.length });
+    console.error(`  ✓ fetched ${url} (${text.length} chars)`);
+  } catch (err) {
+    console.error(`  ! ${url} → ${err.message}`);
+    sources.push({ type: 'url', url, error: err.message });
+  }
+}
+
+// Detect file paths inline (PDF, MD, TXT). Be permissive — match common extensions only.
+const pathRegex = /(?:^|\s)((?:\/|~\/|\.\/|[a-zA-Z]:\\)[^\s]+\.(?:pdf|md|txt))/gi;
+const paths = [...new Set([...raw.matchAll(pathRegex)].map((m) => expandHome(m[1])))];
+
+for (const p of paths) {
+  if (!existsSync(p)) {
+    console.error(`  ! path not found: ${p}`);
+    continue;
+  }
+  try {
+    const ext = extname(p).toLowerCase();
+    if (ext === '.pdf') {
+      const pdfParse = (await import('pdf-parse')).default;
+      const buf = readFileSync(p);
+      const parsed = await pdfParse(buf);
+      raw += `\n\n## From PDF ${basename(p)}\n\n${parsed.text}`;
+      sources.push({ type: 'pdf', path: p, length: parsed.text.length });
+      console.error(`  ✓ parsed PDF ${basename(p)} (${parsed.text.length} chars)`);
+    } else {
+      const text = readFileSync(p, 'utf8');
+      raw += `\n\n## From file ${basename(p)}\n\n${text}`;
+      sources.push({ type: 'file', path: p, length: text.length });
+      console.error(`  ✓ loaded ${basename(p)}`);
+    }
+  } catch (err) {
+    console.error(`  ! ${p} → ${err.message}`);
+  }
+}
+
+// ---- Field extraction ----
+
 const fields = extractFields(raw);
-const clientName = (fields['client name'] || fields['business name'] || fields.client || fields.business || 'client').split('\n')[0].trim();
+const clientName = (fields['client name'] || fields['business name'] || fields.client || fields.business || inferClientName(raw) || 'client').split('\n')[0].trim();
 const slug = slugify(clientName);
 
 const outDir = join(ROOT, 'output', slug);
 mkdirSync(outDir, { recursive: true });
 
-// Save the original intake (markdown form)
-const intakeMdPath = join(outDir, 'intake.md');
-if (originalPath && extname(originalPath).toLowerCase() === '.md') {
-  copyFileSync(originalPath, intakeMdPath);
-} else {
-  writeFileSync(intakeMdPath, raw);
-}
+// Save the merged intake.md (the full enriched blob)
+writeFileSync(join(outDir, 'intake.md'), raw);
 
-// Save the structured intake.json
 const intake = {
   slug,
-  source_type: sourceType,
-  original_path: originalPath,
   parsed_at: new Date().toISOString(),
+  sources,
   client_name: clientName,
   niche: fields.niche || fields.industry || fields['industry / niche'] || fields['industry/niche'] || '',
   sub_niche: fields['sub-niche'] || fields['sub-niche / specialty'] || fields.specialty || '',
@@ -98,26 +148,65 @@ const intake = {
     fonts: fields['font pairing'] || fields.fonts || '',
     vibe: fields['brand vibe'] || fields.vibe || '',
     inspiration_links: parseList(fields['inspiration links'] || fields.inspiration),
-    existing_site: fields['existing site'] || fields.website || fields.url || '',
+    existing_site: fields['existing site'] || fields.website || fields.url || urls[0] || '',
   },
   existing_assets: parseList(fields['existing assets'] || fields.assets),
-  raw_intake: raw.slice(0, 8000), // keep a copy for downstream skills to reference
+  raw_intake: raw.slice(0, 12000),
 };
 writeFileSync(join(outDir, 'intake.json'), JSON.stringify(intake, null, 2));
 
 console.error(`✓ Parsed intake: ${clientName} (${intake.niche || 'no niche'})`);
+console.error(`  sources: ${sources.length} (${sources.map((s) => s.type).join(', ')})`);
 console.error(`  slug: ${slug}`);
 console.error(`  → ${outDir}/intake.json`);
 
-// Last line of stdout = slug, for orchestrator capture
+// Last line of stdout = slug
 process.stdout.write(slug + '\n');
 
 // ---- helpers ----
 
-// Walks the markdown line-by-line and captures three kinds of field:
-//   1. "Key: value" or "- Key: value" with inline value
-//   2. "Key:" (or "- Key:") followed by indented sub-bullets → joined as multi-line value
-//   3. "## Section" headers with prose body (skipped if mostly bullets)
+function expandHome(p) {
+  if (p.startsWith('~/')) return p.replace('~', homedir());
+  return p;
+}
+
+// Strip HTML to roughly readable text (no DOM library — keep it tiny)
+function extractTextFromHtml(html) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Best-effort guess at a client name from the blob if no field gave us one.
+function inferClientName(text) {
+  // Look for the largest URL's hostname → strip TLD → camel case
+  const u = (text.match(urlRegex) || [])[0];
+  if (u) {
+    try {
+      const host = new URL(u).hostname.replace(/^www\./, '');
+      const base = host.split('.')[0];
+      if (base.length >= 3) return base.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    } catch {}
+  }
+  // Else first non-empty line that looks like a name (under 80 chars, mostly letters)
+  for (const line of text.split('\n')) {
+    const t = line.trim();
+    if (t.length > 2 && t.length < 80 && /^[A-Za-z]/.test(t) && !t.includes(':')) return t;
+  }
+  return null;
+}
+
 function extractFields(md) {
   const out = {};
   const lines = md.split('\n');
@@ -126,7 +215,6 @@ function extractFields(md) {
   for (let i = 0; i < n; i++) {
     const line = lines[i];
 
-    // Try inline field "[- ]Key: value"
     const inline = line.match(/^[\s]*[-*]?[\s]*([A-Za-z][^:\n]{0,60}?):[\s]+(.+)$/);
     if (inline) {
       const key = inline[1].toLowerCase().trim();
@@ -135,7 +223,6 @@ function extractFields(md) {
       continue;
     }
 
-    // Try "[- ]Key:" with no inline value followed by indented bullets
     const opener = line.match(/^([\s]*)[-*]?[\s]*([A-Za-z][^:\n]{0,60}?):[\s]*$/);
     if (opener) {
       const baseIndent = opener[1].length;
@@ -147,7 +234,6 @@ function extractFields(md) {
         if (!nextLine.trim()) { j++; continue; }
         const indentMatch = nextLine.match(/^([\s]*)/);
         const indent = indentMatch ? indentMatch[1].length : 0;
-        // Sub-bullet: deeper indent than the opener
         if (indent > baseIndent && /^[\s]*[-*\d.]/.test(nextLine)) {
           const stripped = nextLine.replace(/^[\s]*[-*\d.]+[\s]+/, '').trim();
           if (stripped) subItems.push(stripped);
@@ -159,11 +245,9 @@ function extractFields(md) {
       if (subItems.length && !out[key]) {
         out[key] = subItems.join('\n');
       }
-      // Don't advance i — let the outer loop continue from the next line so we don't miss anything
     }
   }
 
-  // Section pattern (## Field) — only for prose-body sections
   const sections = md.split(/\n##+\s+/);
   for (let i = 1; i < sections.length; i++) {
     const sectionLines = sections[i].split('\n');
@@ -181,10 +265,8 @@ function extractFields(md) {
 function parseList(s) {
   if (!s) return [];
   if (Array.isArray(s)) return s;
-  // Lines starting with - / * / digits — preferred form
   const lines = s.split('\n').map((l) => l.replace(/^[\s]*[-*\d.]+[\s]+/, '').trim()).filter(Boolean);
   if (lines.length > 1) return lines;
-  // Single-line comma-separated (only split on commas, not semicolons — semicolons appear in copy)
   if (s.includes(',') && !s.includes('\n')) {
     return s.split(',').map((p) => p.trim()).filter(Boolean);
   }

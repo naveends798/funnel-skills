@@ -4,8 +4,9 @@
 // usage: node render-dashboard.mjs <slug>
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync, readdirSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { homedir } from 'node:os';
 
 const ROOT = process.cwd();
 const slug = process.argv[2];
@@ -20,8 +21,32 @@ if (!existsSync(clientDir)) {
   process.exit(1);
 }
 
-const here = dirname(fileURLToPath(import.meta.url));
-const dashboardSrc = join(ROOT, 'dashboard');
+// Find the dashboard template — try in priority order:
+//   1. $FUNNEL_SKILLS_HOME/dashboard
+//   2. ~/.funnel-skills/dashboard
+//   3. <cwd>/dashboard (when running inside the repo)
+//   4. Walk up from this script's location to find a dashboard/ folder (dev mode)
+function resolveFunnelSkillsHome() {
+  if (process.env.FUNNEL_SKILLS_HOME && existsSync(join(process.env.FUNNEL_SKILLS_HOME, 'dashboard'))) {
+    return process.env.FUNNEL_SKILLS_HOME;
+  }
+  const homeFs = join(homedir(), '.funnel-skills');
+  if (existsSync(join(homeFs, 'dashboard'))) return homeFs;
+  if (existsSync(join(ROOT, 'dashboard'))) return ROOT;
+  // Walk up from this script
+  const here = dirname(fileURLToPath(import.meta.url));
+  let cur = here;
+  for (let i = 0; i < 8; i++) {
+    if (existsSync(join(cur, 'dashboard', 'index.html'))) return cur;
+    const next = dirname(cur);
+    if (next === cur) break;
+    cur = next;
+  }
+  return ROOT; // fall back
+}
+
+const FUNNEL_SKILLS_HOME = resolveFunnelSkillsHome();
+const dashboardSrc = join(FUNNEL_SKILLS_HOME, 'dashboard');
 const dashboardDst = join(clientDir, 'dashboard');
 mkdirSync(dashboardDst, { recursive: true });
 

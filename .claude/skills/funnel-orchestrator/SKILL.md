@@ -36,20 +36,18 @@ You'll receive an intake source — a path to a markdown file, a PDF path, a URL
 
 7. **Stage 5 — Landing design**. Task tool, `subagent_type: landing-design`. Reads page-copy + offer + brand. Writes `08-design/landing.html`, `landing.css`, `ghl-ai-studio-prompt.md`, `clickfunnels-ai-prompt.md`, `framer-ai-prompt.md`, `design-system.json`.
 
-8. **Stage 6 — Audit**. Task tool, `subagent_type: funnel-doctor`. Verify `09-audit.json`.
-
-9. **Render dashboard** (Bash):
+8. **Render dashboard** (Bash):
    ```bash
    node .claude/skills/funnel-orchestrator/scripts/render-dashboard.mjs "<slug>"
    ```
    This assembles `dashboard/run.js` and copies the dashboard template into the client folder.
 
-10. **Open dashboard** (Bash):
-    ```bash
-    open "output/<slug>/dashboard/index.html"
-    ```
+9. **Open dashboard** (Bash):
+   ```bash
+   open "output/<slug>/dashboard/index.html"
+   ```
 
-11. **Final summary** to user: list every asset path, the funnel pattern picked, the audit scorecard headline, and the next-steps (paste into GHL, copy hooks, etc.).
+10. **Final summary** to user: list every asset path, the funnel pattern picked, and remind them: "**Audit comes after launch.** Once the funnel is live with real metrics (CTR, opt-in rate, ad performance), run `/audit <slug>` for a data-driven optimization audit. Auto-running an audit before launch was creating noise — the funnel-doctor needs your real performance data to produce useful feedback."
 
 ## Failure handling
 
