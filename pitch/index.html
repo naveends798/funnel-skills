@@ -3,383 +3,435 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>funnel-skills — presentation</title>
+<title>funnel-skills — top-down flow</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body class="deck">
+<body>
 
-<!-- Persistent UI -->
-<div class="hud">
-  <div class="hud-left">
-    <span class="hud-mark"></span>
-    <span class="hud-title">funnel-skills</span>
+<nav class="nav">
+  <div class="nav-inner">
+    <span class="brand">
+      <span class="brand-mark"></span>
+      funnel-skills
+    </span>
+    <span class="nav-meta">
+      <span class="dot"></span>
+      v1.0.1 · top-down view
+    </span>
   </div>
-  <div class="hud-right">
-    <span class="hud-counter"><span id="cur">1</span><span class="sep">/</span><span id="total">10</span></span>
+  <div class="scroll-hint">
+    <span>scroll</span>
+    <span class="arrow-down">↓</span>
   </div>
-</div>
+</nav>
 
-<div class="hint" id="hint">
-  <kbd>→</kbd> <kbd>Space</kbd> next · <kbd>←</kbd> back · <kbd>1-9 0</kbd> jump · <kbd>F</kbd> fullscreen
-</div>
-
-<main class="stage" id="stage">
-
-  <!-- SLIDE 1 — TITLE / HOOK -->
-  <section class="slide active" data-slide="1">
-    <div class="bg-grid"></div>
-    <div class="bg-glow glow-amber"></div>
-    <div class="bg-glow glow-teal"></div>
-    <div class="slide-inner center">
-      <div class="anim-1">
-        <span class="eyebrow">For agency owners and solo founders</span>
-      </div>
-      <h1 class="display anim-2">
-        Funnels take a&nbsp;week.<br>
-        <span class="accent">Now they take five minutes.</span>
-      </h1>
-      <p class="lede anim-3">
-        One slash command. Ten specialist agents. Every asset.
-        Built right inside Claude Code.
-      </p>
-      <div class="badges anim-4">
-        <span class="badge"><span class="dot"></span>v1.0.1 · public on GitHub</span>
-        <span class="badge muted">No terminal · No npm · No symlinks</span>
-      </div>
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="bg-grid"></div>
+  <div class="bg-glow glow-amber"></div>
+  <div class="bg-glow glow-teal"></div>
+  <div class="container">
+    <span class="eyebrow reveal">A claude code plugin · for funnel agencies</span>
+    <h1 class="display reveal">
+      One paste<br>
+      <span class="accent">becomes a funnel.</span>
+    </h1>
+    <p class="lede reveal">
+      Watch how it flows. Top to bottom.
+      Each agent picks up where the last one left off.
+      Five minutes from intake to dashboard.
+    </p>
+    <div class="hero-meta reveal">
+      <span class="badge"><span class="badge-dot"></span>10 agents</span>
+      <span class="badge">4 slash commands</span>
+      <span class="badge">1 plugin</span>
+      <span class="badge muted">no terminal</span>
     </div>
-  </section>
+  </div>
+  <div class="scroll-cue reveal">
+    <span class="line"></span>
+    <span class="cue-label">the pipeline begins</span>
+    <span class="line"></span>
+  </div>
+</section>
 
-  <!-- SLIDE 2 — THE PAIN -->
-  <section class="slide" data-slide="2">
-    <div class="slide-inner">
-      <span class="eyebrow anim-1">The before state</span>
-      <h2 class="anim-2">Building one funnel takes a week.<br>And it eats your soul.</h2>
-      <div class="tab-stack">
-        <div class="tab anim-stagger"><span class="t-icon">🔍</span> Reddit + Trustpilot — find pain points</div>
-        <div class="tab anim-stagger"><span class="t-icon">📝</span> ChatGPT — write the offer</div>
-        <div class="tab anim-stagger"><span class="t-icon">📐</span> Whiteboard the funnel</div>
-        <div class="tab anim-stagger"><span class="t-icon">🪝</span> Generate hook ideas</div>
-        <div class="tab anim-stagger"><span class="t-icon">📄</span> Long-form sales copy</div>
-        <div class="tab anim-stagger"><span class="t-icon">📧</span> 21 emails — give up halfway</div>
-        <div class="tab anim-stagger"><span class="t-icon">🎬</span> VSL script blocks you for 2 days</div>
-        <div class="tab anim-stagger"><span class="t-icon">🎨</span> Designer briefs · revise · revise</div>
-        <div class="tab anim-stagger"><span class="t-icon">🛠</span> GHL / ClickFunnels rebuild</div>
-        <div class="tab anim-stagger highlighted"><span class="t-icon">⏰</span> 6–8 days. Per client.</div>
-      </div>
-    </div>
-  </section>
+<!-- ============ THE FLOW ============ -->
+<section class="flow">
+  <div class="flow-container">
 
-  <!-- SLIDE 3 — BEFORE / AFTER -->
-  <section class="slide" data-slide="3">
-    <div class="slide-inner">
-      <span class="eyebrow anim-1">The shift</span>
-      <h2 class="anim-2">From this. To this.</h2>
-      <div class="split-grid">
-        <div class="split-card before anim-3">
-          <span class="eyebrow">Before</span>
-          <div class="split-stat"><span class="num counter" data-target="7">0</span><span class="lbl">days</span></div>
-          <ul>
-            <li>12 tabs open</li>
-            <li>8 tools, all logged in separately</li>
-            <li>Context-switch tax every 20 min</li>
-            <li>Copy lives in 6 different docs</li>
-            <li>Designer revisions slow the launch</li>
-          </ul>
-        </div>
-        <div class="split-arrow anim-4">→</div>
-        <div class="split-card after anim-5">
-          <span class="eyebrow accent">After</span>
-          <div class="split-stat"><span class="num counter accent" data-target="5">0</span><span class="lbl">minutes</span></div>
-          <ul>
-            <li>One slash command in Claude Code</li>
-            <li>Ten specialist agents in parallel</li>
-            <li>3,500-word page copy, ready to paste</li>
-            <li>21 emails across 4 sequences</li>
-            <li>12-beat VSL + branded HTML page</li>
-          </ul>
+    <!-- The continuous vertical spine -->
+    <svg class="spine" preserveAspectRatio="none" viewBox="0 0 4 1000" aria-hidden="true">
+      <line class="spine-bg" x1="2" y1="0" x2="2" y2="1000" />
+      <line class="spine-fg" x1="2" y1="0" x2="2" y2="1000" id="spine-progress" />
+    </svg>
+
+    <!-- Node 0: INPUT -->
+    <div class="node node-input" data-node="0">
+      <div class="node-dot input"><span class="dot-pulse"></span></div>
+      <div class="node-card card-left">
+        <span class="node-eyebrow">your input</span>
+        <h3>Anything you have about the client</h3>
+        <p>URL · PDF · plain notes · or all three mixed together. Paste once. The orchestrator reads everything.</p>
+        <div class="chips">
+          <span class="chip">📎 URL</span>
+          <span class="chip">📄 PDF</span>
+          <span class="chip">📝 notes</span>
+          <span class="chip">🗒️ mixed</span>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- SLIDE 4 — THE SOLUTION -->
-  <section class="slide" data-slide="4">
-    <div class="bg-glow glow-amber center"></div>
-    <div class="slide-inner center">
-      <span class="eyebrow anim-1">The solution</span>
-      <h2 class="display anim-2 small-display">One plugin.<br>Ten agents.<br><span class="accent">Wired together.</span></h2>
-      <div class="install-card anim-3">
-        <div class="install-step">
-          <span class="install-num">1</span>
-          <code>/plugin marketplace add naveends798/funnel-skills</code>
-        </div>
-        <div class="install-step">
-          <span class="install-num">2</span>
-          <code>/plugin install funnel-skills@funnel-skills</code>
-        </div>
-        <div class="install-foot">That's the install. Restart Claude Code. Done.</div>
+    <!-- Connector -->
+    <div class="connector"></div>
+
+    <!-- Stage label -->
+    <div class="stage-label" data-node="1a"><span>STAGE 1 · sequential</span></div>
+
+    <!-- Node 1: market-intelligence -->
+    <div class="node" data-node="1">
+      <div class="node-dot"><span class="num">01</span></div>
+      <div class="node-card card-right">
+        <span class="node-eyebrow accent">market-intelligence</span>
+        <h3>Reads the niche. Maps the audience.</h3>
+        <p>Pulls real Reddit + Trustpilot language. Builds the ICP. Maps Schwartz's 5 awareness levels. Surfaces the actual pain points your audience uses in their own words.</p>
+        <div class="output-pill">→ <code>01-market.json</code></div>
       </div>
     </div>
-  </section>
 
-  <!-- SLIDE 5 — THE TEN AGENTS -->
-  <section class="slide" data-slide="5">
-    <div class="slide-inner">
-      <span class="eyebrow anim-1">The ten agents</span>
-      <h2 class="anim-2">Each one is a specialist.</h2>
-      <div class="agent-grid">
-        <div class="agent-card anim-stagger"><div class="agent-num">01</div><h3>market-intelligence</h3><p>ICP, 5 awareness levels, real Reddit/Trustpilot patterns.</p></div>
-        <div class="agent-card anim-stagger"><div class="agent-num">02</div><h3>offer-architect</h3><p>Value stack, pricing ladder, guarantee, competitor teardown.</p></div>
-        <div class="agent-card anim-stagger"><div class="agent-num">03</div><h3>strategy-advisor</h3><p>Webinar / VSL / tripwire / quiz / challenge — picked for the offer.</p></div>
-        <div class="agent-card anim-stagger"><div class="agent-num">04</div><h3>hook-engineer</h3><p>15 hooks · 3 headline ladders · awareness-tuned.</p></div>
-        <div class="agent-card anim-stagger"><div class="agent-num">05</div><h3>page-copywriter</h3><p>3,500+ words · 9 sections · paste-ready.</p></div>
-        <div class="agent-card anim-stagger"><div class="agent-num">06</div><h3>email-sequence-architect</h3><p>21 emails · 4 sequences · subject + preview + body + CTA.</p></div>
-        <div class="agent-card anim-stagger"><div class="agent-num">07</div><h3>vsl-scriptwriter</h3><p>12 beats · 12–25 min runtime · teleprompter-ready.</p></div>
-        <div class="agent-card anim-stagger"><div class="agent-num">08</div><h3>landing-design</h3><p>Branded HTML + GHL / ClickFunnels / Framer prompts.</p></div>
-        <div class="agent-card anim-stagger"><div class="agent-num">09</div><h3>funnel-orchestrator</h3><p>Reads intake. Runs the pipeline. Streams progress.</p></div>
-        <div class="agent-card anim-stagger accent-card"><div class="agent-num">10</div><h3>funnel-doctor</h3><p><strong>Post-launch.</strong> Live URL + metrics → punch list with expected lifts.</p></div>
+    <div class="connector"></div>
+
+    <!-- Node 2: offer-architect -->
+    <div class="node" data-node="2">
+      <div class="node-dot"><span class="num">02</span></div>
+      <div class="node-card card-left">
+        <span class="node-eyebrow accent">offer-architect</span>
+        <h3>Builds the offer. Picks the price.</h3>
+        <p>Architects the value stack (Hormozi-style). Picks the pricing ladder — anchor, charm, decoy. Writes the guarantee. Runs a competitor teardown.</p>
+        <div class="output-pill">→ <code>02-offer.json</code></div>
       </div>
     </div>
-  </section>
 
-  <!-- SLIDE 6 — PIPELINE -->
-  <section class="slide" data-slide="6">
-    <div class="slide-inner">
-      <span class="eyebrow anim-1">How it runs</span>
-      <h2 class="anim-2">Sequential where it has to be.<br>Parallel where it can be.</h2>
-      <div class="pipe">
-        <div class="pipe-row anim-stagger">
-          <div class="pipe-num">Stage 1</div>
-          <div class="pipe-box solo">market-intelligence</div>
-        </div>
-        <div class="pipe-arrow anim-stagger"></div>
-        <div class="pipe-row anim-stagger">
-          <div class="pipe-num">Stage 2</div>
-          <div class="pipe-box solo">offer-architect</div>
-        </div>
-        <div class="pipe-arrow anim-stagger"></div>
-        <div class="pipe-row anim-stagger">
-          <div class="pipe-num">Stage 3</div>
-          <div class="pipe-box solo">strategy-advisor</div>
-        </div>
-        <div class="pipe-arrow anim-stagger"></div>
-        <div class="pipe-row anim-stagger">
-          <div class="pipe-num">Stage 4 — parallel</div>
-          <div class="pipe-grid">
-            <div class="pipe-box">hook-engineer</div>
-            <div class="pipe-box">page-copywriter</div>
-            <div class="pipe-box">email-sequence-architect</div>
-            <div class="pipe-box">vsl-scriptwriter</div>
-          </div>
-        </div>
-        <div class="pipe-arrow anim-stagger"></div>
-        <div class="pipe-row anim-stagger">
-          <div class="pipe-num">Stage 5</div>
-          <div class="pipe-box solo">landing-design</div>
-        </div>
-        <div class="pipe-arrow anim-stagger"></div>
-        <div class="pipe-row anim-stagger">
-          <div class="pipe-box solo dashboard-box">📊 Dashboard opens</div>
-        </div>
+    <div class="connector"></div>
+
+    <!-- Node 3: strategy-advisor -->
+    <div class="node" data-node="3">
+      <div class="node-dot"><span class="num">03</span></div>
+      <div class="node-card card-right">
+        <span class="node-eyebrow accent">strategy-advisor</span>
+        <h3>Picks the funnel pattern.</h3>
+        <p>Webinar · VSL · tripwire · quiz · challenge · SLO · book. The right shape for this offer at this price for this audience. Output: a Mermaid flow with stage-by-stage metrics.</p>
+        <div class="output-pill">→ <code>03-strategy.json</code></div>
       </div>
     </div>
-  </section>
 
-  <!-- SLIDE 7 — FOUR COMMANDS -->
-  <section class="slide" data-slide="7">
-    <div class="slide-inner">
-      <span class="eyebrow anim-1">What you actually type</span>
-      <h2 class="anim-2">Four commands.<br>That's the whole interface.</h2>
-      <div class="cmd-list">
-        <div class="cmd-row anim-stagger">
-          <code class="cmd">/funnel-intake</code>
-          <span class="cmd-desc">Build a complete funnel. Paste anything: URL, PDF, notes, mixed. Dashboard opens in 5 minutes.</span>
+    <!-- PARALLEL FORK -->
+    <div class="fork" data-node="fork">
+      <span class="fork-label">STAGE 4 · parallel</span>
+      <span class="fork-sublabel">four agents · same time · save 12 minutes here</span>
+    </div>
+
+    <div class="parallel-grid">
+      <div class="lane" data-node="4a">
+        <div class="lane-rail"></div>
+        <div class="lane-dot"><span class="num">04</span></div>
+        <div class="lane-card">
+          <span class="node-eyebrow accent">hook-engineer</span>
+          <h4>15 hooks · 3 ladders</h4>
+          <p>Mapped to awareness levels. Ad-ready, scroll-stopping.</p>
+          <div class="output-pill">→ <code>04-hooks.json</code></div>
         </div>
-        <div class="cmd-row anim-stagger">
-          <code class="cmd">/audit</code>
-          <span class="cmd-desc">After launch. Paste live URL + metrics. Get a diagnostic punch list with expected lifts.</span>
+      </div>
+      <div class="lane" data-node="4b">
+        <div class="lane-rail"></div>
+        <div class="lane-dot"><span class="num">05</span></div>
+        <div class="lane-card">
+          <span class="node-eyebrow accent">page-copywriter</span>
+          <h4>3,500+ words</h4>
+          <p>Nine sections. Hero through final CTA. Ready to paste.</p>
+          <div class="output-pill">→ <code>05-page-copy.json</code></div>
         </div>
-        <div class="cmd-row anim-stagger">
-          <code class="cmd">/funnel-list</code>
-          <span class="cmd-desc">All your client funnels in one list, with quick links to each dashboard.</span>
+      </div>
+      <div class="lane" data-node="4c">
+        <div class="lane-rail"></div>
+        <div class="lane-dot"><span class="num">06</span></div>
+        <div class="lane-card">
+          <span class="node-eyebrow accent">email-sequence-architect</span>
+          <h4>21 emails</h4>
+          <p>Welcome · nurture · sales · post-purchase. Subject + body + delay + CTA.</p>
+          <div class="output-pill">→ <code>06-emails.json</code></div>
         </div>
-        <div class="cmd-row anim-stagger">
-          <code class="cmd">/funnel-help</code>
-          <span class="cmd-desc">Reference card right inside Claude Code, anytime you forget anything.</span>
+      </div>
+      <div class="lane" data-node="4d">
+        <div class="lane-rail"></div>
+        <div class="lane-dot"><span class="num">07</span></div>
+        <div class="lane-card">
+          <span class="node-eyebrow accent">vsl-scriptwriter</span>
+          <h4>12-beat VSL</h4>
+          <p>Hook to close. 12-25 min runtime. Teleprompter-ready cadence.</p>
+          <div class="output-pill">→ <code>07-vsl.json</code></div>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- SLIDE 8 — DELIVERABLES -->
-  <section class="slide" data-slide="8">
-    <div class="slide-inner">
-      <span class="eyebrow anim-1">What lands in your folder</span>
-      <h2 class="anim-2">Every asset. One folder.<br>Every block has a copy button.</h2>
-      <div class="deliv-grid">
-        <div class="deliv anim-stagger"><div class="deliv-num counter" data-target="9">0</div><div class="deliv-lbl">section landing page</div><div class="deliv-desc">3,500+ words. Hero through final CTA.</div></div>
-        <div class="deliv anim-stagger"><div class="deliv-num counter" data-target="21">0</div><div class="deliv-lbl">emails</div><div class="deliv-desc">Welcome, nurture, sales, post-purchase.</div></div>
-        <div class="deliv anim-stagger"><div class="deliv-num counter" data-target="15">0</div><div class="deliv-lbl">hooks + 3 ladders</div><div class="deliv-desc">Mapped to awareness levels.</div></div>
-        <div class="deliv anim-stagger"><div class="deliv-num counter" data-target="12">0</div><div class="deliv-lbl">VSL beats</div><div class="deliv-desc">Hook to close. Teleprompter-ready.</div></div>
-        <div class="deliv anim-stagger"><div class="deliv-num counter" data-target="1">0</div><div class="deliv-lbl">branded HTML page</div><div class="deliv-desc">Live preview, mobile/tablet/desktop toggle.</div></div>
-        <div class="deliv anim-stagger"><div class="deliv-num counter" data-target="3">0</div><div class="deliv-lbl">builder prompts</div><div class="deliv-desc">GHL · ClickFunnels · Framer.</div></div>
+    <!-- Merge back -->
+    <div class="merge"></div>
+
+    <div class="connector"></div>
+
+    <!-- Node 5: landing-design -->
+    <div class="node" data-node="5">
+      <div class="node-dot"><span class="num">08</span></div>
+      <div class="node-card card-left">
+        <span class="node-eyebrow accent">landing-design</span>
+        <h3>Renders the page. Writes the prompts.</h3>
+        <p>Branded HTML + CSS landing page (CSS variables for easy brand tweaks). Plus paste-ready prompts for GoHighLevel AI Studio, ClickFunnels AI, and Framer AI — so even the build step is automated.</p>
+        <div class="output-pill">→ <code>08-design/*</code></div>
       </div>
     </div>
-  </section>
 
-  <!-- SLIDE 9 — INSTALL -->
-  <section class="slide" data-slide="9">
-    <div class="slide-inner">
-      <span class="eyebrow anim-1">Install — under 60 seconds</span>
-      <h2 class="anim-2">No terminal. No npm. No symlinks.</h2>
-      <ol class="install-list">
-        <li class="install-step-card anim-stagger"><span class="step-num">1</span><div class="step-body"><h4>Have Claude Code installed</h4><p>Free at <code>claude.com/claude-code</code>.</p></div></li>
-        <li class="install-step-card anim-stagger"><span class="step-num">2</span><div class="step-body"><h4>Open it in any folder</h4><p>New folder per client keeps assets isolated.</p></div></li>
-        <li class="install-step-card anim-stagger"><span class="step-num">3</span><div class="step-body"><h4>Type two slash commands</h4><pre><code>/plugin marketplace add naveends798/funnel-skills
-/plugin install funnel-skills@funnel-skills</code></pre></div></li>
-        <li class="install-step-card anim-stagger"><span class="step-num">4</span><div class="step-body"><h4>Restart Claude Code</h4><p>It re-reads the plugin on launch.</p></div></li>
-        <li class="install-step-card anim-stagger"><span class="step-num">5</span><div class="step-body"><h4>Type <code>/funnel-intake</code></h4><p>Paste client info. Reply "go". Dashboard opens.</p></div></li>
-      </ol>
-    </div>
-  </section>
+    <div class="connector long"></div>
 
-  <!-- SLIDE 10 — CTA -->
-  <section class="slide" data-slide="10">
-    <div class="bg-glow glow-amber center"></div>
-    <div class="slide-inner center">
-      <h1 class="display anim-1">Ship a funnel<br>before lunch.</h1>
-      <p class="lede anim-2">
-        Stop wiring eight tools together. Stop briefing designers.
-        Stop staring at a blank page.
-      </p>
-      <div class="cta-buttons anim-3">
-        <a class="btn primary" href="https://github.com/naveends798/funnel-skills" target="_blank" rel="noopener">
-          Get it on GitHub
-          <span class="arrow">→</span>
-        </a>
-        <a class="btn ghost" href="https://github.com/naveends798/funnel-skills/blob/main/CHANGELOG.md" target="_blank" rel="noopener">
-          Changelog
-        </a>
-      </div>
-      <div class="cta-foot anim-4">
-        github.com/naveends798/funnel-skills · MIT licensed
+    <!-- Final node: dashboard -->
+    <div class="node node-output" data-node="6">
+      <div class="node-dot output"><span class="dot-pulse"></span></div>
+      <div class="node-card card-right card-final">
+        <span class="node-eyebrow accent">your dashboard opens</span>
+        <h3>Every asset. One folder.<br>Every block has a copy button.</h3>
+        <div class="output-counts">
+          <div class="count"><span class="num counter" data-target="9">0</span><span class="lbl">section page</span></div>
+          <div class="count"><span class="num counter" data-target="21">0</span><span class="lbl">emails</span></div>
+          <div class="count"><span class="num counter" data-target="15">0</span><span class="lbl">hooks</span></div>
+          <div class="count"><span class="num counter" data-target="12">0</span><span class="lbl">VSL beats</span></div>
+          <div class="count"><span class="num counter" data-target="3">0</span><span class="lbl">builder prompts</span></div>
+          <div class="count"><span class="num counter" data-target="1">0</span><span class="lbl">branded page</span></div>
+        </div>
       </div>
     </div>
-  </section>
 
-</main>
+  </div>
+</section>
 
-<!-- Progress dots -->
-<div class="progress" id="progress"></div>
+<!-- ============ POST-LAUNCH LOOP ============ -->
+<section class="loop">
+  <div class="container">
+    <div class="loop-card reveal">
+      <div class="loop-icon">10</div>
+      <div class="loop-body">
+        <span class="eyebrow accent">the loop · post-launch</span>
+        <h3>Funnel goes live. Then funnel-doctor takes over.</h3>
+        <p>Paste your live URL + ad metrics + page metrics. The doctor WebFetches the page, diffs it against the assets we generated, walks the diagnostic tree, and returns a punch list with realistic expected lifts. Ship the fixes. Re-audit. Track improvement.</p>
+        <div class="loop-arrow">
+          <span class="arrow-text">/audit</span>
+          <span class="arrow-line"></span>
+          <span class="arrow-head">→</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOUR COMMANDS ============ -->
+<section class="commands">
+  <div class="container">
+    <span class="eyebrow reveal">what you actually type</span>
+    <h2 class="reveal">Four commands.<br>That's the whole interface.</h2>
+    <div class="cmd-grid">
+      <div class="cmd-row reveal">
+        <code class="cmd">/funnel-intake</code>
+        <span class="cmd-desc">Build a funnel. Paste anything. Wait 5 minutes.</span>
+      </div>
+      <div class="cmd-row reveal">
+        <code class="cmd">/audit</code>
+        <span class="cmd-desc">Post-launch diagnostic. Paste URL + metrics. Get a fix list.</span>
+      </div>
+      <div class="cmd-row reveal">
+        <code class="cmd">/funnel-list</code>
+        <span class="cmd-desc">Every client funnel, with a quick link to each dashboard.</span>
+      </div>
+      <div class="cmd-row reveal">
+        <code class="cmd">/funnel-help</code>
+        <span class="cmd-desc">Reference card. Inside Claude Code. Always there.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INSTALL ============ -->
+<section class="install">
+  <div class="container narrow">
+    <span class="eyebrow reveal">install · under 60 seconds</span>
+    <h2 class="reveal">No terminal. No npm.<br>Two commands inside Claude Code.</h2>
+    <div class="install-flow">
+      <div class="install-step reveal">
+        <span class="step-num">1</span>
+        <div class="step-body">
+          <h4>Install Claude Code</h4>
+          <p>Free at <code>claude.com/claude-code</code>. Skip if you already have it.</p>
+        </div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="install-step reveal">
+        <span class="step-num">2</span>
+        <div class="step-body">
+          <h4>Open it in any folder</h4>
+          <p>One folder per client keeps assets isolated.</p>
+        </div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="install-step reveal highlight">
+        <span class="step-num">3</span>
+        <div class="step-body">
+          <h4>Type these two commands</h4>
+          <pre><code>/plugin marketplace add naveends798/funnel-skills
+/plugin install funnel-skills@funnel-skills</code></pre>
+        </div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="install-step reveal">
+        <span class="step-num">4</span>
+        <div class="step-body">
+          <h4>Restart Claude Code</h4>
+          <p>It re-reads plugins on launch.</p>
+        </div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="install-step reveal">
+        <span class="step-num">5</span>
+        <div class="step-body">
+          <h4>Type <code>/funnel-intake</code></h4>
+          <p>Paste client info. Reply "go". Dashboard opens in 5 minutes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta">
+  <div class="container narrow">
+    <h2 class="display reveal">Ship a funnel<br><span class="accent">before lunch.</span></h2>
+    <p class="lede reveal">
+      Stop wiring eight tools together. Stop briefing designers.
+      Stop staring at a blank page.
+    </p>
+    <div class="cta-buttons reveal">
+      <a class="btn primary" href="https://github.com/naveends798/funnel-skills" target="_blank" rel="noopener">
+        Get it on GitHub
+        <span class="btn-arrow">→</span>
+      </a>
+      <a class="btn ghost" href="https://github.com/naveends798/funnel-skills/blob/main/CHANGELOG.md" target="_blank" rel="noopener">
+        Changelog
+      </a>
+    </div>
+    <div class="cta-foot reveal">
+      MIT licensed · built by <a href="https://github.com/naveends798" target="_blank">Naveen Dsouza</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <span>funnel-skills · v1.0.1</span>
+    <span>github.com/naveends798/funnel-skills</span>
+  </div>
+</footer>
 
 <script>
-const slides = document.querySelectorAll('.slide');
-const total = slides.length;
-let current = 0;
-let lastNav = Date.now();
-
-document.getElementById('total').textContent = total;
-
-// Build progress dots
-const progress = document.getElementById('progress');
-slides.forEach((_, i) => {
-  const dot = document.createElement('button');
-  dot.className = 'progress-dot';
-  dot.setAttribute('aria-label', `Slide ${i + 1}`);
-  dot.addEventListener('click', () => goTo(i));
-  progress.appendChild(dot);
-});
-const dots = progress.querySelectorAll('.progress-dot');
-
-function goTo(idx) {
-  if (idx < 0 || idx >= total || idx === current) return;
-  const dir = idx > current ? 'forward' : 'back';
-  slides[current].classList.remove('active');
-  slides[current].classList.add(dir === 'forward' ? 'exit-left' : 'exit-right');
-  setTimeout(() => {
-    slides[current].classList.remove('exit-left', 'exit-right');
-    current = idx;
-    slides[current].classList.add('active');
-    document.getElementById('cur').textContent = current + 1;
-    dots.forEach((d, i) => d.classList.toggle('active', i === current));
-    runCounters(slides[current]);
-  }, 50);
-  // mark previous so it slides out cleanly even after we swap active
-}
-
-function next() { goTo(current + 1); }
-function prev() { goTo(current - 1); }
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
-  else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'Backspace') { e.preventDefault(); prev(); }
-  else if (e.key === 'Home') goTo(0);
-  else if (e.key === 'End') goTo(total - 1);
-  else if (e.key === 'Escape') goTo(0);
-  else if (e.key >= '1' && e.key <= '9') goTo(parseInt(e.key) - 1);
-  else if (e.key === '0') goTo(9);
-  else if (e.key === 'f' || e.key === 'F') {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-    else document.exitFullscreen();
-  }
-});
-
-// Click-to-advance (but only outside interactive elements)
-document.getElementById('stage').addEventListener('click', (e) => {
-  if (e.target.closest('a, button, code, .install-step, .cmd-row')) return;
-  next();
-});
-
-// Hide HUD/cursor after inactivity (cinema mode)
-let cursorTimer;
-function wakeCursor() {
-  document.body.classList.remove('cinema');
-  clearTimeout(cursorTimer);
-  cursorTimer = setTimeout(() => document.body.classList.add('cinema'), 2400);
-}
-['mousemove', 'keydown', 'click'].forEach((ev) => document.addEventListener(ev, wakeCursor));
-wakeCursor();
-
-// Hide hint after first navigation
-let hinted = false;
-function hideHint() {
-  if (hinted) return;
-  hinted = true;
-  document.getElementById('hint').classList.add('gone');
-}
-document.addEventListener('keydown', hideHint, { once: true });
-document.addEventListener('click', hideHint, { once: true });
-
-// Number counters
-function runCounters(slide) {
-  slide.querySelectorAll('.counter').forEach((el) => {
-    const target = parseInt(el.dataset.target, 10);
-    const dur = 900;
-    const start = performance.now();
-    function tick(t) {
-      const p = Math.min((t - start) / dur, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = Math.round(target * eased);
-      if (p < 1) requestAnimationFrame(tick);
+// ========== Reveal-on-scroll ==========
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      io.unobserve(e.target);
     }
-    requestAnimationFrame(tick);
+  }
+}, { threshold: 0.15, rootMargin: '0px 0px -80px 0px' });
+
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.style.transitionDelay = `${Math.min(i * 30, 180)}ms`;
+  io.observe(el);
+});
+
+// ========== Spine progress (the vertical line draws as you scroll past the flow) ==========
+const flow = document.querySelector('.flow');
+const spineFg = document.getElementById('spine-progress');
+
+function updateSpine() {
+  if (!flow || !spineFg) return;
+  const rect = flow.getBoundingClientRect();
+  const total = rect.height;
+  const scrolledIn = Math.max(0, -rect.top);
+  const ratio = Math.min(Math.max(scrolledIn / (total - window.innerHeight * 0.5), 0), 1);
+  spineFg.style.strokeDashoffset = `${1000 * (1 - ratio)}`;
+}
+spineFg.style.strokeDasharray = '1000';
+spineFg.style.strokeDashoffset = '1000';
+
+// ========== Node activation as it crosses center ==========
+const nodes = document.querySelectorAll('[data-node]');
+const lanes = document.querySelectorAll('.lane');
+
+function updateNodes() {
+  const center = window.innerHeight * 0.55;
+  nodes.forEach((n) => {
+    const r = n.getBoundingClientRect();
+    const mid = r.top + r.height / 2;
+    if (mid < center + 80) n.classList.add('lit');
+    if (r.top > window.innerHeight) n.classList.remove('lit');
   });
 }
 
-// Mark first dot active and run any counters on slide 1
-dots[0].classList.add('active');
-runCounters(slides[0]);
+// ========== Counters ==========
+const counters = document.querySelectorAll('.counter');
+const seen = new WeakSet();
+function checkCounters() {
+  counters.forEach((el) => {
+    if (seen.has(el)) return;
+    const r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight * 0.85 && r.bottom > 0) {
+      seen.add(el);
+      const target = parseInt(el.dataset.target, 10);
+      const dur = 1100;
+      const start = performance.now();
+      function tick(t) {
+        const p = Math.min((t - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(target * eased);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+  });
+}
 
-// Touch swipe support
-let tx = 0;
-document.addEventListener('touchstart', (e) => { tx = e.touches[0].clientX; });
-document.addEventListener('touchend', (e) => {
-  const dx = e.changedTouches[0].clientX - tx;
-  if (Math.abs(dx) > 60) (dx < 0 ? next : prev)();
-});
+// ========== rAF loop ==========
+let ticking = false;
+function onScroll() {
+  if (!ticking) {
+    requestAnimationFrame(() => {
+      updateSpine();
+      updateNodes();
+      checkCounters();
+      ticking = false;
+    });
+    ticking = true;
+  }
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+window.addEventListener('resize', onScroll);
+onScroll();
+
+// Hide scroll hint after first scroll
+let scrolled = false;
+window.addEventListener('scroll', () => {
+  if (!scrolled && window.scrollY > 80) {
+    scrolled = true;
+    document.querySelector('.scroll-hint')?.classList.add('hidden');
+  }
+}, { passive: true });
 </script>
 </body>
 </html>
