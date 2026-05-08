@@ -220,6 +220,68 @@ You ship the changes. Run more traffic. Re-run `/audit <client>` to track improv
 
 ---
 
+## How the agents work (v1.3 architecture)
+
+When you type `/funnel-intake`, the orchestrator runs **3 phases** with two parallel waves of subagents inside. Total wall time: **5–7 minutes** for a complete funnel buildout.
+
+```
+Phase 0 — Intake parse + Prebuild (Node, ~60-90s)
+   ├── parses URL/PDF/text into intake.json
+   └── runs 3 market-research queries CONCURRENTLY (Promise.all)
+       writes research-cache.json + seeds design-system.json
+
+Phase 1 — WAVE 1 (~90s, two agents in ONE message — actually parallel)
+   ├── market-intelligence  · sonnet · synthesizes ICP + 5 awareness levels + pains
+   └── offer-architect      · opus 4.6 · Hormozi value-equation killer offer
+
+Phase 2 — WAVE 2 (~150s, FIVE agents in ONE message — actually parallel)
+   ├── strategy-advisor     · sonnet · picks funnel pattern + Mermaid flowchart + KPIs
+   ├── hook-engineer        · haiku  · 15 hooks across 5 awareness levels + 3 ladders
+   ├── page-copywriter      · sonnet · 9-section landing page (~3,500 words)
+   ├── email-architect      · haiku  · 21 emails (welcome 5 / nurture 7 / sales 5 / post-purchase 4)
+   └── vsl-scriptwriter     · sonnet · 12-beat VSL (Jon Benson skeleton, ~14 min)
+
+Phase 3 — Landing-design (sonnet, optional) + Postbuild (Node, ~10-60s)
+   ├── landing-design       · enhances design-system.json from intake.brand + existing site
+   └── postbuild            · validates + normalizes every JSON, generates landing.html/css,
+                              builder prompts (GHL, ClickFunnels, Framer), and the dashboard
+```
+
+### Why per-agent model selection matters
+
+Wave 2's wall time = the slowest agent, not the sum. By assigning **haiku** to bulk-format agents (hooks, emails) and **sonnet** to creative agents (page, VSL, strategy), the slow agent (page-copy on sonnet, ~2.5 min) finishes alongside hooks and emails (~30-60s on haiku). The whole wave costs what page-copy alone costs. **Opus 4.6** is reserved for offer-architect because the Hormozi value equation rewards the largest model — get the offer right and every downstream skill works.
+
+### Direct-response principles, baked in
+
+Each subagent's `SKILL.md` channels named DR practitioners — the prompts cite specific frameworks so the LLM produces the right kind of work, not generic copy:
+
+| Skill                       | Frameworks channeled                                                                 |
+|-----------------------------|--------------------------------------------------------------------------------------|
+| market-intelligence         | Eugene Schwartz (5 awareness levels), Gary Halbert, Joe Sugarman                     |
+| offer-architect             | Alex Hormozi (value equation), Todd Brown (Big Idea), Russell Brunson, Dan Kennedy   |
+| strategy-advisor            | Russell Brunson (DotCom Secrets matrix), Mike Filsaime, Frank Kern                   |
+| hook-engineer               | John Carlton (Star/Story/Solution), Gary Halbert, Russell Brunson, Joe Sugarman      |
+| page-copywriter             | Gary Halbert (AIDA + bullet rhythm), John Carlton, Eugene Schwartz, Hormozi          |
+| email-sequence-architect    | Ben Settle (email-a-day), Russell Brunson (Soap Opera + Seinfeld), Andre Chaperon    |
+| vsl-scriptwriter            | Jon Benson (12-beat VSL skeleton), Andre Chaperon, Russell Brunson, Dan Kennedy      |
+| landing-design              | Jakob Nielsen (mobile-first hierarchy), Massimo Vignelli, Aaron Walter (emotional)   |
+
+### Schema contract — why dashboard tabs don't break
+
+Prior versions had agents drift away from the dashboard's expected JSON shapes — tabs broke and required hand-patching per build. v1.3 fixes that with three layers:
+
+1. **`lib/schemas.mjs`** — canonical shape for every asset, with `required` fields and `forbidden` drift patterns. Each `SKILL.md` inlines its exact JSON template from this file.
+2. **`lib/postbuild.mjs`** — validates every JSON file against the schema; calls `lib/normalize.mjs` to repair drift in place; writes corrections back to disk; prints schema warnings so you can see which agent went off-schema.
+3. **`render-dashboard.mjs`** — calls `normalizeRun()` one more time as a safety net before writing `run.js`, so even if postbuild is skipped, the dashboard never throws.
+
+You can re-run postbuild any time on existing client folders to regenerate the dashboard with the latest validation:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/lib/postbuild.mjs" <slug>
+```
+
+---
+
 ## The four slash commands — cheat sheet
 
 | Command | What it does | When to use |

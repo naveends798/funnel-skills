@@ -6,6 +6,57 @@ All notable changes to **funnel-skills** are tracked here. Format follows [Keep 
 
 ---
 
+## [1.3.0] — 2026-05-08
+
+### Major — schema-first rebuild + DR-principles in every skill
+
+The biggest pain in v1.0–v1.2 was schema drift: agents wrote slightly different JSON shapes than the dashboard expected, so tabs broke and a `normalizeRun()` shim had to be hand-applied per build. v1.3 makes the schemas canonical and validates every asset before rendering — **no more manual patching for new clients**.
+
+#### Schema-first
+- **`lib/schemas.mjs` (new)** — single source of truth for every output shape, plus a tiny `validate()` function. Each schema lists `required` keys and `forbidden` drift patterns ("guarantee as object", "icp.demographics as array", etc.).
+- **Every SKILL.md inlines its canonical schema as a literal JSON template** in the Output section. No more "see references/schema.md" indirection.
+- **`lib/postbuild.mjs` runs validation + normalization at the start of every build.** Drift is repaired in place (`object → string`, `wrong key → right key`, `wrapper unwrapped`) and warnings print so you can see which agent went off-schema.
+- **`render-dashboard.mjs` already calls `normalizeRun()` as a final safety net.** Even if postbuild is skipped, the dashboard never breaks.
+
+#### DR-principles baked into every skill
+Each SKILL.md now opens with which direct-response principles it channels:
+- **market-intelligence:** Eugene Schwartz (5 awareness levels), Gary Halbert (audience beliefs), Joe Sugarman (slippery slide of emotion).
+- **offer-architect:** Alex Hormozi (value equation: dream × likelihood / time × effort), Todd Brown (Big Idea), Russell Brunson (hook-story-offer), Dan Kennedy (specificity + scarcity).
+- **strategy-advisor:** Russell Brunson (DotCom Secrets matrix), Mike Filsaime (butterfly + bridge funnels), Frank Kern (micro-offers).
+- **hook-engineer:** John Carlton (Star/Story/Solution), Gary Halbert (specificity hooks), Russell Brunson (curiosity patterns), Joe Sugarman.
+- **page-copywriter:** Gary Halbert (AIDA + bullet rhythm), John Carlton ("but-not-just-any" intensifier), Eugene Schwartz, Russell Brunson, Hormozi.
+- **email-sequence-architect:** Ben Settle (email-a-day infotainment), Russell Brunson (Soap Opera + Seinfeld emails), Andre Chaperon (autoresponder madness), Dan Kennedy.
+- **vsl-scriptwriter:** Jon Benson (the 12-beat skeleton — original architect of the format), Andre Chaperon (story-led), Russell Brunson (epiphany bridge), Dan Kennedy.
+- **landing-design:** Jakob Nielsen (mobile-first hierarchy), Massimo Vignelli (typographic restraint), Aaron Walter (emotional design).
+
+#### Pipeline shape (v1.3)
+```
+Phase 0 — Intake parse + Prebuild (Node, ~60–90s)
+Phase 1 — WAVE 1 (2 parallel) ~90s
+   ├── market-intelligence (sonnet)
+   └── offer-architect (opus 4.6) [Hormozi killer offer]
+Phase 2 — WAVE 2 (5 parallel) ~150s
+   ├── strategy-advisor (sonnet)
+   ├── hook-engineer (haiku)
+   ├── page-copywriter (sonnet)
+   ├── email-sequence-architect (haiku)
+   └── vsl-scriptwriter (sonnet)
+Phase 3 — landing-design (sonnet, optional) + postbuild (Node)
+   └── postbuild validates + normalizes + assembles HTML/CSS/dashboard
+```
+
+Total target: **5–7 minutes**. Strategy-advisor moved into Wave 2 (down from a separate Phase 2 in v1.2) since it depends on the same inputs as the other 4 wave-2 agents — pure parallel fan-out is cleaner than serial-then-fan-out.
+
+#### Migration
+Existing client folders work without re-running. To regenerate the dashboard with v1.3 validation:
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/lib/postbuild.mjs" <slug>
+```
+
+Postbuild will read the on-disk JSON files, normalize any drift, and re-render the dashboard. Tab failures from older builds get fixed automatically.
+
+---
+
 ## [1.2.0] — 2026-05-08
 
 ### Changed — make the parallel waves un-misreadable + per-agent model selection
