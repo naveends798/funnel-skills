@@ -1,9 +1,9 @@
 ---
-description: Build a complete client funnel in under 7 minutes. Type /funnel-intake, paste anything from the client (URL, text, PDF path, or all at once), Claude parses → runs research in parallel → fans out 2 waves of parallel agents → assembles HTML/builder prompts/dashboard deterministically. Was 35 min, now ~6.
+description: Build a complete client funnel in under 6 minutes. Parses intake → runs research in parallel → fans out 2 waves of parallel subagents (with per-agent model selection) → assembles HTML, builder prompts, and dashboard deterministically.
 argument-hint: [url | pdf-path | inline text — or leave empty and I'll ask]
 ---
 
-The user typed `/funnel-intake $ARGUMENTS`. Conversational entry point. Be flexible — accept whatever they paste. **Wall-time target for the full build is ≤ 7 minutes.** Hit it by following the wave structure below; do not let stages serialize.
+The user typed `/funnel-intake $ARGUMENTS`. **Wall-time target: ≤ 6 minutes.** The way you hit it is by following the wave structure below *exactly*. The single biggest failure mode is dispatching subagents one at a time instead of as a single fan-out — read the **Speed contract** at the bottom before you start, and re-read it before Wave 1 and again before Wave 2.
 
 # Conversational funnel intake
 
@@ -54,57 +54,121 @@ Read `output/<slug>/intake.json` and print:
 > - Brand: <brand.primary_color>, <brand.fonts>, <brand.vibe>
 > - Pain points: N · Goals: N
 >
-> Reply "go" to build the funnel (~6 min). Or tell me what to fix first.
+> Reply "go" to build (~6 min). Or tell me what to fix first.
 
-Wait for confirmation. If they ask for changes, edit `intake.json` and re-echo.
+Wait for confirmation. If they ask for changes, edit `intake.json` and re-echo. **In auto mode, skip the wait — go straight to Step 5.**
 
 ## Step 5 — Build pipeline (~6 min total)
 
-Print one streaming line per stage so the user sees progress.
+Print one short streaming line per phase. Do not narrate internal reasoning.
 
-### Stage A — Prebuild: parallel research (~60–90s)
+### Phase A — Prebuild: parallel research (~60–90s)
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/lib/prebuild.mjs" <slug>
 ```
 
-Print: `▸ research cache built`.
+This Node script runs all 3 research queries concurrently via `Promise.all` and seeds `08-design/design-system.json`. Print: `▸ research cache built`.
 
-### Stage B — WAVE 1: market + offer in parallel (one message, two Task calls)
+### Phase B — WAVE 1 (2 subagents, dispatched in ONE response)
 
-Spawn BOTH in a single message — don't await one before launching the other:
+> **Read this line carefully.** In your **next** assistant turn, you must emit **TWO** Task tool calls **inside a single message** — no text between them, no "let me dispatch the first one and wait." Anthropic's runtime parallelizes Task calls *only when they appear in the same message.* Issuing them one-per-message is the difference between 3 minutes and 12 minutes.
 
-- Task `subagent_type: market-intelligence` (or `general-purpose`), prompt: `"Read ${CLAUDE_PLUGIN_ROOT}/skills/market-intelligence/SKILL.md and run it for slug <slug>. Synthesize from research-cache.json — do NOT run new web research."`
-- Task `subagent_type: offer-architect` (or `general-purpose`), prompt: `"Read ${CLAUDE_PLUGIN_ROOT}/skills/offer-architect/SKILL.md and run it for slug <slug>. Read intake.json + research-cache.json (01-market.json is being built in parallel and is unavailable to you)."`
+Pattern (literal — don't rephrase the prompts when you dispatch):
 
-Wait for both. Print one ✓ per agent.
+```
+Task #1
+  subagent_type: general-purpose
+  model: sonnet
+  description: Stage 1A — market intelligence
+  prompt:
+    Read ${CLAUDE_PLUGIN_ROOT}/skills/market-intelligence/SKILL.md and run it for slug <slug>.
+    Synthesize 01-market.json from output/<slug>/research-cache.json.
+    Do NOT run new web research unless cache.source === 'fallback' (cap: 3 WebSearch + 2 WebFetch total).
+    Output JSON only, exactly the schema in the SKILL.md "Output" section. No prose outside.
 
-### Stage C — WAVE 2: 5 agents in parallel (one message, five Task calls)
+Task #2
+  subagent_type: general-purpose
+  model: sonnet
+  description: Stage 1B — offer architect
+  prompt:
+    Read ${CLAUDE_PLUGIN_ROOT}/skills/offer-architect/SKILL.md and run it for slug <slug>.
+    Read intake.json + research-cache.json. Do NOT wait for 01-market.json — it does not exist yet.
+    Output JSON only, exactly the schema in the SKILL.md "Output" section. No prose outside.
+```
 
-Spawn ALL FIVE in a single message. Each agent's prompt: `"Read ${CLAUDE_PLUGIN_ROOT}/skills/<skill>/SKILL.md and run it for slug <slug>. If 04-hooks.json doesn't exist when you start, fall back to 02-offer.json.core_promise as instructed in your SKILL.md."`
+Wait for both. Print `✓ market intelligence` and `✓ offer architected` as they finish. Verify both files exist before moving on.
 
-- `strategy-advisor` → `03-strategy.json`
-- `hook-engineer` → `04-hooks.json`
-- `page-copywriter` → `05-page-copy.json` (sections only — no `markdown`/`full_page_markdown` fields; postbuild assembles)
-- `email-sequence-architect` → `06-emails.json` (21 emails)
-- `vsl-scriptwriter` → `07-vsl.json` (12 beats — no `full_script`; postbuild assembles)
+### Phase C — WAVE 2 (5 subagents, dispatched in ONE response)
 
-Wait for all five. Print one ✓ per agent as they finish.
+> **Same rule, harder.** All FIVE Task calls in a single message. The Task tool fans out concurrently *only* if they're in the same response. Models per agent are chosen so the fast ones are truly fast — don't promote everything to opus.
 
-### Stage D — Postbuild: deterministic assembly (~10s)
+Pattern (literal):
+
+```
+Task #1
+  subagent_type: general-purpose
+  model: haiku
+  description: Stage 2A — strategy advisor
+  prompt:
+    Read ${CLAUDE_PLUGIN_ROOT}/skills/strategy-advisor/SKILL.md and run it for slug <slug>.
+    Pick exactly one funnel pattern + a backup. Build the Mermaid flowchart and stage metrics.
+    JSON only, schema per SKILL.md.
+
+Task #2
+  subagent_type: general-purpose
+  model: sonnet
+  description: Stage 2B — hook engineer
+  prompt:
+    Read ${CLAUDE_PLUGIN_ROOT}/skills/hook-engineer/SKILL.md and run it for slug <slug>.
+    15 hooks across all 5 awareness levels + 3 headline ladders. Use language_patterns from 01-market.json.
+    JSON only, schema per SKILL.md.
+
+Task #3
+  subagent_type: general-purpose
+  model: opus
+  description: Stage 2C — page copywriter
+  prompt:
+    Read ${CLAUDE_PLUGIN_ROOT}/skills/page-copywriter/SKILL.md and run it for slug <slug>.
+    Sections only — DO NOT write per-section `markdown` blocks or `full_page_markdown` (postbuild assembles them).
+    If 04-hooks.json is missing when you start, use 02-offer.json.core_promise as your H1 candidate.
+    JSON only, schema per SKILL.md.
+
+Task #4
+  subagent_type: general-purpose
+  model: sonnet
+  description: Stage 2D — email sequence architect
+  prompt:
+    Read ${CLAUDE_PLUGIN_ROOT}/skills/email-sequence-architect/SKILL.md and run it for slug <slug>.
+    21 emails across 4 sequences. If 04-hooks.json missing, mine subjects from 01-market.language_patterns.
+    JSON only, schema per SKILL.md.
+
+Task #5
+  subagent_type: general-purpose
+  model: sonnet
+  description: Stage 2E — VSL scriptwriter
+  prompt:
+    Read ${CLAUDE_PLUGIN_ROOT}/skills/vsl-scriptwriter/SKILL.md and run it for slug <slug>.
+    12 beats with full per-beat scripts. DO NOT write `full_script` (postbuild concatenates).
+    JSON only, schema per SKILL.md.
+```
+
+Wait for all five. Print one `✓` per agent as it returns.
+
+### Phase D — Postbuild + dashboard (~15s)
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/lib/postbuild.mjs" <slug>
 node "${CLAUDE_PLUGIN_ROOT}/skills/funnel-orchestrator/scripts/launch-dashboard.mjs" <slug>
 ```
 
-Postbuild assembles `full_page_markdown`, VSL `full_script`, `landing.html`, `landing.css`, GHL/CF/Framer prompts, and the dashboard. The launcher boots a local HTTP server rooted at `output/<slug>/` and opens the dashboard — **don't use `open file://...`** because Chrome silently blocks the iframe that loads `../08-design/landing.html`.
+Postbuild assembles `full_page_markdown`, VSL `full_script`, `landing.html`, `landing.css`, and the GHL/ClickFunnels/Framer builder prompts. The launcher boots an HTTP server rooted at `output/<slug>/` and opens the dashboard — **don't use `open file://...`** because Chrome silently blocks the iframe that loads `../08-design/landing.html`.
 
 ## Step 6 — Final summary
 
 > ✓ **<client_name>** funnel ready (built in ~N min).
 >
-> - Market: N pain points, N awareness levels mapped (research source: <source>)
+> - Market: N pain points, N awareness levels (research source: <source>)
 > - Offer: "<core_promise>"
 > - Strategy: <funnel_pattern>
 > - Page copy: ~N words across 9 sections
@@ -112,7 +176,7 @@ Postbuild assembles `full_page_markdown`, VSL `full_script`, `landing.html`, `la
 > - VSL: 12 beats, ~14 min
 > - Design: branded HTML page + GHL/CF/Framer prompts
 >
-> Dashboard: `output/<slug>/dashboard/index.html`
+> Dashboard: served locally — URL above.
 >
 > Page Copy tab → "Copy full page Markdown" → paste into your builder.
 > Design tab → live preview or copy a builder prompt.
@@ -122,13 +186,25 @@ Postbuild assembles `full_page_markdown`, VSL `full_script`, `landing.html`, `la
 
 ## Failure handling
 
-- If a stage fails, **stop**. Print which stage + error.
+- If a phase fails, **stop**. Print which phase + error.
 - Re-run a single agent: ask Claude to "run <skill-name> for <slug>".
 - Re-run postbuild after manual edits: `node "${CLAUDE_PLUGIN_ROOT}/lib/postbuild.mjs" <slug>`.
 
-## Speed contract (do not violate)
+## Speed contract — read before Wave 1 and again before Wave 2
 
-- Wave 1 must launch with TWO parallel Task calls in one message.
-- Wave 2 must launch with FIVE parallel Task calls in one message.
-- Never serialize agents that don't have a hard dependency.
-- Never spawn an agent for landing-design — postbuild handles it.
+These are non-negotiable. If you violate them, the build slips from ~6 min to 15+ min.
+
+1. **Wave 1 = 2 Task calls in ONE message.** Not "dispatch one and await; then dispatch the next." A single assistant response containing both tool_use blocks.
+2. **Wave 2 = 5 Task calls in ONE message.** Same rule. Five tool_use blocks in one response.
+3. **Use the per-agent `model` field** as written above. `haiku` for strategy. `sonnet` for hooks/emails/vsl/market/offer. `opus` only for page-copy. Promoting everything to opus burns wall time for no quality gain.
+4. **Never dispatch a `landing-design` agent.** Postbuild handles design output deterministically. The skill stays in the repo as reference docs only.
+5. **Never serialize wave-2 agents on `04-hooks.json`.** Page/email/VSL agents have explicit fallbacks in their SKILL.md. They start in parallel with hook-engineer.
+
+## If a previous run took >10 minutes
+
+Your installed plugin is on a pre-v1.1.0 build (the old 6-stage serial flow). Update once and re-run:
+
+- **From the Customizations UI:** Customizations → funnel-skills → Update (or Sync the marketplace), then restart Claude Code.
+- **From the Claude Code CLI:** `/plugin update funnel-skills`, then restart.
+
+After the update, the orchestrator's labels switch from `Stage 1/2/3...` to `Phase A/B/C/D` and `Wave 1/Wave 2` — that's how you confirm you're on the fast version.

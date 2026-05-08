@@ -6,6 +6,25 @@ All notable changes to **funnel-skills** are tracked here. Format follows [Keep 
 
 ---
 
+## [1.2.0] — 2026-05-08
+
+### Changed — make the parallel waves un-misreadable + per-agent model selection
+
+v1.1.0 was the right architecture, but observed runs in Claude Desktop showed the orchestrator still serializing ("Stage 1 → Stage 2 → Stage 3" with each stage taking 3–6 min) instead of dispatching wave 1 and wave 2 as concurrent fan-outs. v1.2.0 closes that gap.
+
+- **`/funnel-intake` and `funnel-orchestrator/SKILL.md` rewritten** with literal Task-call patterns showing exactly how the multi-Task message must be structured. The "Speed contract" section is now duplicated at the top and bottom — the orchestrator is told to re-read it before Wave 1 and again before Wave 2. Stage labels switched from `Stage 1/2/3...` to `Phase A/B/C/D` + `Wave 1/Wave 2` so a slow run is recognizable at a glance ("if you see Stage 1/2/3, your plugin is on the v1.0 build — update").
+- **Per-agent model selection.** Wave-2 agents are no longer all on opus:
+  - `strategy-advisor` → **haiku** (decision rubric, no creative writing)
+  - `hook-engineer`, `email-sequence-architect`, `vsl-scriptwriter`, `market-intelligence`, `offer-architect` → **sonnet** (creative but bounded)
+  - `page-copywriter` → **opus** (long-form, multi-section creative)
+  - This drops wave-2 wall time roughly 30–50% because the slowest agent (page-copy on opus) now runs concurrent with sonnet agents that finish in 1/3 the time, instead of all 5 contending for opus capacity.
+- **Auto-mode shortcut.** When auto mode is active, `/funnel-intake` skips the "reply 'go' to confirm" wait and proceeds straight from intake echo to Phase A.
+- **Update reminder for buyers.** A "If a previous run took >10 minutes" section in `/funnel-intake` tells users their plugin is on a pre-v1.1.0 build and how to update via the Customizations UI or `/plugin update`.
+
+No SKILL.md output schemas changed — v1.1.0 outputs (intake.json, 01-market.json, etc.) are still valid. Any existing client folder works without re-running the build. Just run `node lib/postbuild.mjs <slug>` if you want to regenerate the dashboard / HTML with the v1.2.0 templates.
+
+---
+
 ## [1.1.0] — 2026-05-07
 
 ### Changed — speed: full funnel build now ~6 min (was ~35)
