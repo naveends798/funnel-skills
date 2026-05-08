@@ -1,6 +1,6 @@
 # funnel-skills
 
-> One slash command. A complete client funnel — copy, emails, video script, branded landing page, ad-builder prompts. Five minutes from intake to dashboard. Installs as a Claude Code plugin in one command. No terminal.
+> One slash command. A complete client funnel — copy, emails, video script, branded landing page, ad-builder prompts. ~6 minutes from intake to dashboard. Installs as a Claude Code plugin in two commands.
 
 ---
 
@@ -26,20 +26,44 @@ After you launch the funnel, type `/audit <client>` and Claude does a data-drive
 
 ---
 
-## Install — two commands inside Claude Code
+## Install
 
-**You need:** [Claude Code](https://claude.com/claude-code) installed and [Node.js 20+](https://nodejs.org). That's it. No terminal beyond that.
+**You need:** [Claude Code](https://claude.com/claude-code) and [Node.js 20+](https://nodejs.org).
 
-Open Claude Code in any folder, type these two commands in the chat:
+> **Why a one-time terminal step?** The `/plugin` marketplace command runs in the Claude Code **CLI**. It isn't exposed inside the VSCode / Cursor / JetBrains native extension yet — typing `/plugin ...` there returns *"/plugin isn't available in this environment."* Install once via the CLI as shown below; after that, `/funnel-intake`, `/audit`, and the other commands work in every Claude Code surface, including the extension you'll use day-to-day.
+
+The install is **two commands, run once, in a terminal**. After that the plugin works everywhere — Claude Code CLI, the VSCode extension, Cursor, JetBrains.
+
+### Step 1 — Open a terminal and start the Claude Code CLI
+
+Any terminal works (macOS Terminal, iTerm, or the integrated terminal inside VSCode: `View → Terminal`). Then:
+
+```bash
+claude
+```
+
+That drops you into a Claude Code CLI session.
+
+### Step 2 — Run the two install commands
+
+Inside that session, paste:
 
 ```
 /plugin marketplace add naveends798/funnel-skills
 /plugin install funnel-skills@funnel-skills
 ```
 
-Claude Code clones the plugin, registers all 10 skills + 4 slash commands, and runs a one-time background install of `pdf-parse` (so PDF intake works). **Restart Claude Code once** so it loads the new commands. Done.
+Claude Code clones the plugin to `~/.claude/plugins/marketplaces/funnel-skills/`, registers it, and runs a one-time background install of `pdf-parse` so PDF intake works.
 
-That's the whole install. No `git clone`. No `npm install`. No `install.sh`. No symlinks. Nothing in `~/.claude/` to manage.
+### Step 3 — Restart Claude Code
+
+Quit Claude Code (the CLI session **and** any open extension windows) and reopen it. From this point on the plugin is loaded everywhere you use Claude Code.
+
+### Verify
+
+In any Claude Code window — CLI or extension — type `/funnel-help` and press Enter. If you see the funnel-skills quick reference, you're set. If the slash command doesn't appear yet, fully restart Claude Code one more time (some IDEs cache the slash-command list per window).
+
+That's the entire install. No manual `git clone`. No `~/.claude/settings.json` to hand-edit. The terminal is only needed once — every funnel after that gets built inside whichever Claude Code surface you prefer.
 
 ---
 
@@ -262,9 +286,11 @@ Only `output/` lives in your folder. Everything else is plugin code, managed aut
 
 Three ways to stay current. Pick whichever you prefer.
 
+> All three options use commands that run inside the Claude Code **CLI**. If you only use the VSCode/Cursor/JetBrains extension, open a terminal and run `claude` first.
+
 ### Option A — Manual update (recommended for most people)
 
-When you hear about a new release (the changelog is at [CHANGELOG.md](./CHANGELOG.md)), inside Claude Code type:
+When you hear about a new release (the changelog is at [CHANGELOG.md](./CHANGELOG.md)), inside the Claude Code CLI type:
 
 ```
 /plugin update funnel-skills
@@ -274,18 +300,32 @@ Claude Code git-pulls the repo, replaces the plugin install, and re-registers ev
 
 ### Option B — Auto-update on launch (set it and forget it)
 
-Inside Claude Code, open the plugin manager (`/plugin`), find the `funnel-skills` marketplace, and toggle **auto-update**. From then on, every Claude Code launch checks the repo and pulls if there's a new commit. You never think about updates again.
+Inside the Claude Code CLI, open the plugin manager (`/plugin`), find the `funnel-skills` marketplace, and toggle **auto-update**. From then on, every Claude Code launch checks the repo and pulls if there's a new commit. You never think about updates again.
 
 ### Option C — Pin to a specific version
 
 If you'd rather not be on `main`, point your install at a tagged release. The `version` field in [.claude-plugin/plugin.json](./.claude-plugin/plugin.json) reflects the current tag. Useful if a release ever breaks something for you and you need to pause.
 
+### Option D — Manual update without `/plugin`
+
+```bash
+cd ~/.claude/plugins/funnel-skills@funnel-skills
+git pull
+npm install --omit=dev
+```
+
+Restart Claude Code. Same result as `/plugin update funnel-skills`.
+
 ### Uninstall / reinstall
+
+In the Claude Code CLI:
 
 ```
 /plugin uninstall funnel-skills                  # remove (your output/ stays put)
 /plugin install funnel-skills@funnel-skills      # reinstall the latest
 ```
+
+Or manually: delete `~/.claude/plugins/funnel-skills@funnel-skills/` and remove the entry from `~/.claude/settings.json` → `enabledPlugins`.
 
 ---
 
