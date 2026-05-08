@@ -6,6 +6,28 @@ All notable changes to **funnel-skills** are tracked here. Format follows [Keep 
 
 ---
 
+## [1.1.0] — 2026-05-07
+
+### Changed — speed: full funnel build now ~6 min (was ~35)
+
+The orchestrator was running every stage one-at-a-time and treating deterministic work (HTML, builder prompts, full-page markdown) as LLM agents. Restructured for parallelism:
+
+- **`lib/prebuild.mjs` (new)** — runs all 3 market-research queries concurrently via `Promise.all` instead of one Apify call at a time. Seeds `08-design/design-system.json` from `intake.brand`. Took ~3-5 min sequentially → ~60-90s parallel.
+- **`lib/postbuild.mjs` (new)** — deterministic Node assembly that replaces the `landing-design` LLM stage and the per-section markdown duplication. Builds `full_page_markdown`, VSL `full_script`, `landing.html`, `landing.css`, and the 3 builder prompts (GHL / ClickFunnels / Framer) from page-copy + design-system. Replaces ~3-5 min of LLM time with ~10s of Node.
+- **Wave 1**: `market-intelligence` + `offer-architect` now run **in parallel** (one message, two `Task` calls). `offer-architect` reads `research-cache.json` instead of waiting for `01-market.json`.
+- **Wave 2**: `strategy-advisor`, `hook-engineer`, `page-copywriter`, `email-sequence-architect`, `vsl-scriptwriter` all run **in parallel** (one message, five `Task` calls). The 3 hook-dependent agents fall back to `02-offer.json.core_promise` if `04-hooks.json` isn't ready yet.
+- **Token diet**: `page-copywriter` no longer writes per-section `markdown` blocks or `full_page_markdown` (postbuild assembles them). `vsl-scriptwriter` no longer writes `full_script` (postbuild assembles it). Roughly halves output tokens for the two heaviest agents.
+- **`landing-design` demoted** — no longer spawned as an LLM agent during builds. SKILL.md retained as the design-system reference and as a manual override path for `/funnel-doctor`.
+- Fixed pre-existing crash in `generate-sections.mjs` when `offer.positioning` is an object instead of a string.
+
+### Re-run after manual edits
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/lib/postbuild.mjs" <slug>
+```
+
+---
+
 ## [1.0.1] — 2026-05-07
 
 ### Added

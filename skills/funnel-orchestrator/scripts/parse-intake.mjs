@@ -136,6 +136,7 @@ for (const p of paths) {
 // ---- Field extraction ----
 
 const fields = extractFields(raw);
+extractQuestionStyleFields(raw, fields);
 const clientName = (fields['client name'] || fields['business name'] || fields.client || fields.business || inferClientName(raw) || 'client').split('\n')[0].trim();
 const slug = slugify(clientName);
 
@@ -297,4 +298,76 @@ function parseList(s) {
     return s.split(',').map((p) => p.trim()).filter(Boolean);
   }
   return [s.trim()];
+}
+
+// PDF-friendly extraction: maps conversational intake-form questions
+// to the same canonical keys extractFields() produces from "Key: value"
+// markdown. Each question runs against the full blob; the answer is
+// whatever non-empty text follows the question up to the next question
+// or blank-line boundary. Only sets a key if extractFields didn't
+// already find one.
+function extractQuestionStyleFields(text, out) {
+  const QUESTIONS = [
+    ['client name',      [/what['']?s?\s+your\s+(?:full\s+name|company\s+name|business\s+name)/i, /(?:business|company|client)\s+name\??\s*$/im]],
+    ['niche',            [/(?:what'?s?\s+your\s+)?(?:industry|niche|core\s+problem)/i]],
+    ['sub-niche',        [/sub[-\s]?niche|specialty/i]],
+    ['offer name',       [/(?:what is the\s+)?(?:name of your )?(?:offer|program|product)\s*(?:name)?\??/i]],
+    ['offer description',[/(?:how would you )?explain what you (?:offer|do|sell)(?: in\s*\d+\s*sentences?)?/i, /what do you sell/i]],
+    ['price',            [/(?:what['']?s?\s+your\s+)?pricing(?:\s+structure)?/i, /how much/i]],
+    ['format',           [/(?:delivery\s+)?format/i, /how is it delivered/i]],
+    ['description',      [/(?:ideal\s+)?customer\s+avatar/i, /target\s+audience/i, /who is (?:your|the)\s+customer/i]],
+    ['pain points',      [/(?:what\s+are\s+the\s+)?(?:biggest\s+)?pain\s+points?/i, /what['']?s?\s+keeping\s+them\s+up/i]],
+    ['desires',          [/desires?(?:\s*\/?\s*goals)?/i, /what do they want most/i]],
+    ['current stage',    [/current\s+stage|where are you now/i]],
+    ['goals',            [/(?:business\s+)?goals?/i]],
+    ['voice',            [/(?:how['']?s?\s+your\s+)?(?:brand\s+)?voice/i, /tone\s+(?:preference|of voice)/i]],
+    ['unique mechanism', [/unique\s+mechanism|usp|unique\s+selling/i, /what makes (?:this|you|it)\s+different/i]],
+    ['logo url',         [/logo\s+url/i, /(?:link to your )?logo/i]],
+    ['primary color',    [/primary\s+color/i, /brand\s+color/i]],
+    ['secondary color',  [/secondary\s+color/i, /accent\s+color/i]],
+    ['fonts',            [/font\s+pairing/i, /fonts?\s*$/im]],
+    ['brand vibe',       [/brand\s+vibe/i, /(?:3\s+)?adjectives?\s+for\s+(?:the\s+)?brand/i]],
+    ['inspiration links',[/inspiration\s+links?/i, /sites?\s+(?:you\s+)?(?:like|love|want to match)/i]],
+    ['existing site',    [/existing\s+site|current\s+(?:website|site|landing|page)/i, /your\s+url/i]],
+    ['existing assets',  [/existing\s+assets|case\s+studies|testimonials/i]],
+  ];
+
+  for (const [key, regexes] of QUESTIONS) {
+    if (out[key]) continue; // already found by extractFields
+    for (const re of regexes) {
+      const m = text.match(re);
+      if (!m) continue;
+      const after = text.slice(m.index + m[0].length);
+      const answer = readAnswer(after);
+      if (answer) {
+        out[key] = answer;
+        break;
+      }
+    }
+  }
+}
+
+function readAnswer(text) {
+  // Trim leading punctuation (?, :, -, etc.) and whitespace.
+  const cleaned = text.replace(/^[\s\?:.\-—–]+/, '');
+  // Stop at:
+  //   - the next question (line ending in '?')
+  //   - a blank-line boundary followed by an ALL-CAPS or "What/How/Where" header
+  //   - 6 lines, whichever comes first
+  const lines = cleaned.split('\n');
+  const collected = [];
+  for (let i = 0; i < Math.min(lines.length, 12); i++) {
+    const line = lines[i].trim();
+    if (!line) {
+      if (collected.length > 0) break;
+      continue;
+    }
+    // New question / heading detector
+    if (/\?\s*$/.test(line) && collected.length > 0) break;
+    if (/^(what|how|when|where|who|why|describe|tell us)\b/i.test(line) && collected.length > 0) break;
+    if (/^[A-Z][A-Z\s]{8,}$/.test(line) && collected.length > 0) break; // ALL CAPS HEADER
+    collected.push(line);
+    if (collected.join(' ').length > 800) break;
+  }
+  return collected.join(' ').trim();
 }

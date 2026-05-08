@@ -14,7 +14,7 @@ Receive `<slug>`. Read:
 1. `output/<slug>/intake.json`
 2. `output/<slug>/01-market.json` (pain points, language patterns)
 3. `output/<slug>/02-offer.json` (offer, guarantee, value stack)
-4. `output/<slug>/04-hooks.json` (subject line raw material)
+4. `output/<slug>/04-hooks.json` **if it exists** (subject line raw material; if missing — running in parallel with hook-engineer — mine subjects from `01-market.json.language_patterns` and `02-offer.json.core_promise`)
 5. `${CLAUDE_PLUGIN_ROOT}/skills/email-sequence-architect/references/sequence-structures.md`
 
 ## Process
@@ -66,7 +66,34 @@ Sent after they buy. Reduces refunds, drives engagement, sets up next purchase.
 
 ## Output
 
-`output/<slug>/06-emails.json` per schema.
+Write `output/<slug>/06-emails.json`. **Exact dashboard contract:**
+
+```json
+{
+  "sequences": {
+    "welcome":       [ /* array of email objects */ ],
+    "nurture":       [ /* array of email objects */ ],
+    "sales":         [ /* array of email objects */ ],
+    "post_purchase": [ /* array of email objects */ ]
+  }
+}
+```
+
+Each email object:
+
+```json
+{
+  "email_n": 1,
+  "subject": "string",
+  "preview": "string",
+  "body": "full email body (\\n for line breaks)",
+  "cta_text": "string",
+  "cta_url_placeholder": "{{offer_url}}",
+  "send_after": "0d | 1d 9am | 3d"
+}
+```
+
+**Hard rule — this caused a `TypeError` in a real run:** each value under `sequences` is a **plain array of emails**. Do NOT wrap the array in metadata like `{ trigger: "...", purpose: "...", emails: [...] }`. The dashboard does `for...of` directly on the array. If you want to record sequence metadata (trigger, purpose), put it under a separate top-level `sequence_metadata` object — never inside `sequences`.
 
 Print: `✓ 21 emails (4 sequences) → output/<slug>/06-emails.json`
 

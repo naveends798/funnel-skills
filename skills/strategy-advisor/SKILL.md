@@ -45,7 +45,38 @@ Receive `<slug>`. Read:
 
 ## Output
 
-Write `output/<slug>/03-strategy.json` per schema. Print:
-`✓ strategy: <pattern> picked → output/<slug>/03-strategy.json`
+Write `output/<slug>/03-strategy.json`. **The exact shape below is what the dashboard reads.** Drift here breaks the entire dashboard (it caused a `TypeError: parameter 1 is not of type 'Node'` in a real run when `funnel_pattern` was emitted as an object instead of a string, which froze every nav tab).
 
-JSON only.
+```json
+{
+  "funnel_pattern": "webinar",
+  "backup_pattern": "challenge",
+  "reasoning": "<2-3 sentences>",
+  "flowchart_mermaid": "graph LR\n  A[Cold Ad] --> B[Landing] --> C[VSL]",
+  "stages": [
+    {
+      "name": "Cold ad",
+      "purpose": "<what this stage does, 1-2 sentences>",
+      "key_metrics": ["CTR", "CPC", "frequency"]
+    }
+  ],
+  "estimated_metrics": {
+    "ctr": "1.2-2.0%",
+    "opt_in_rate": "28-38%",
+    "conversion_rate": "0.6-1.2%"
+  }
+}
+```
+
+**Hard rules — every single one of these has caused a real crash:**
+
+- `funnel_pattern` MUST be a single string (the pattern name). NEVER an object. NEVER `{ name: "...", description: "..." }`. If you want to describe the pattern, that goes in `reasoning`.
+- Use the field name `flowchart_mermaid` (not `funnel_flowchart_mermaid`).
+- Use the field name `stages` (not `funnel_stages`).
+- Each stage uses `purpose` (not `creative_role`, not `description`, not `role`).
+- Each stage uses `key_metrics` as an **array of strings**. Do NOT use `expected_metrics` as an object — flatten it to a string array.
+- Use the field name `estimated_metrics` (not `north_star_funnel_economics`). All values must be strings.
+
+Print: `✓ strategy: <pattern> picked → output/<slug>/03-strategy.json`
+
+JSON only — no markdown fences, no prose.

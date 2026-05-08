@@ -33,8 +33,33 @@ Receive `<slug>`. Read:
 
 ## Output
 
-`output/<slug>/04-hooks.json` per schema. Print:
-`✓ 15 hooks + 3 ladders → output/<slug>/04-hooks.json`
+Write `output/<slug>/04-hooks.json`. **Exact dashboard contract:**
+
+```json
+{
+  "hooks": [
+    {
+      "id": 1,
+      "text": "the hook text the dashboard displays",
+      "framework": "AIDA | PAS | BAB | curiosity | story | contrarian | statistic",
+      "awareness_level": 2
+    }
+  ],
+  "headline_ladders": [
+    {
+      "awareness_level": 1,
+      "headlines": ["top of page headline", "mid-page headline", "CTA headline"]
+    }
+  ]
+}
+```
+
+**Hard rules:**
+
+- Each hook uses `text` (NOT `hook` or `copy`). The dashboard reads `text` directly.
+- Each ladder uses `headlines` as an **array of strings** (NOT `rungs` of objects with `copy`).
+
+Print: `✓ 15 hooks + 3 ladders → output/<slug>/04-hooks.json`
 
 JSON only.
 

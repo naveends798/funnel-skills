@@ -235,7 +235,11 @@ function rgbaShift(hex, percent) {
 }
 
 function extractOfferName(offer) {
-  return offer.offer_name || offer.positioning?.match(/[A-Z][\w ]{2,40}/)?.[0] || 'the System';
+  if (offer.offer_name) return offer.offer_name;
+  const pos = typeof offer.positioning === 'string'
+    ? offer.positioning
+    : offer.positioning?.statement || offer.positioning?.text || offer.core_promise || '';
+  return pos.match(/[A-Z][\w ]{2,40}/)?.[0] || 'the System';
 }
 
 const heroH1 = sections.hero?.headline || 'Headline';
