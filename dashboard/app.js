@@ -257,21 +257,15 @@ function renderStrategy(run) {
   const s = run.strategy || {};
   const root = $('#strategy');
   root.innerHTML = '';
-  root.appendChild(panelHead('Stage 3', `${s.funnel_pattern || ''} funnel`.trim(), s.reasoning || ''));
-  if (s.flowchart_mermaid) {
-    root.appendChild(el('div', { class: 'subhead' }, 'Flowchart'));
-    root.appendChild(el('pre', { class: 'code' }, s.flowchart_mermaid));
-  }
+  const pattern = typeof s.funnel_pattern === 'string' ? s.funnel_pattern : '';
+  root.appendChild(panelHead('Stage 3', `${pattern} funnel`.trim() || 'Funnel strategy', s.reasoning || ''));
+
+  // Visual funnel diagram (custom SVG renderer — replaces fragile Mermaid)
   if (s.stages?.length) {
-    root.appendChild(el('div', { class: 'subhead' }, 'Stages'));
-    for (const st of s.stages) {
-      root.appendChild(el('div', { class: 'card' },
-        el('h3', null, st.name || ''),
-        el('p', null, st.purpose || ''),
-        st.key_metrics?.length ? el('p', { style: 'font-family:var(--font-mono);font-size:12px;color:var(--fg-mute);' }, st.key_metrics.join(' · ')) : null,
-      ));
-    }
+    root.appendChild(el('div', { class: 'subhead' }, 'Funnel flow'));
+    root.appendChild(buildFunnelDiagram(s));
   }
+
   if (s.estimated_metrics) {
     root.appendChild(el('div', { class: 'subhead' }, 'Estimated metrics'));
     const grid = el('div', { class: 'stat-grid' });
@@ -283,6 +277,221 @@ function renderStrategy(run) {
     }
     root.appendChild(grid);
   }
+
+  // Optional: keep raw Mermaid source under a collapsible for users who want it
+  // for Notion/Whimsical/etc.
+  if (s.flowchart_mermaid) {
+    const det = el('details', { class: 'mermaid-source' },
+      el('summary', null, 'Raw flowchart source (Mermaid) — copy for Notion/Whimsical'),
+      el('pre', { class: 'code' }, s.flowchart_mermaid),
+    );
+    root.appendChild(det);
+  }
+}
+
+// ─── Custom SVG + HTML funnel diagram ─────────────────────────────────────
+//
+// Mermaid is fragile against agent-generated source ($, em-dash, comma, etc.)
+// — this renderer is deterministic, on-brand, and never throws on label content.
+
+function temperatureFor(idx, total) {
+  // Distribute Cold → Warm → Hot → Loyal across the stages.
+  const r = idx / Math.max(total - 1, 1);
+  if (r < 0.28) return 'cold';
+  if (r < 0.6) return 'warm';
+  if (r < 0.86) return 'hot';
+  return 'loyal';
+}
+
+const TEMP_LABEL = { cold: 'Cold traffic', warm: 'Warm intent', hot: 'Hot buyer', loyal: 'Loyal customer' };
+
+function buildFunnelDiagram(strategy) {
+  const stages = strategy.stages || [];
+  const wrap = el('div', { class: 'funnel-diagram' });
+
+  injectFunnelStyles();
+
+  // Hero SVG funnel (top — decorative + at-a-glance)
+  wrap.appendChild(buildSvgFunnel(stages));
+
+  // Detail timeline (below — readable cards, full-width)
+  const timeline = el('div', { class: 'funnel-timeline' });
+  stages.forEach((st, i) => {
+    const temp = temperatureFor(i, stages.length);
+    const card = el('div', { class: `funnel-stage temp-${temp}` });
+
+    const rail = el('div', { class: 'funnel-rail' },
+      el('div', { class: 'funnel-num' }, String(i + 1)),
+      i < stages.length - 1 ? el('div', { class: 'funnel-connector' }) : null,
+    );
+
+    const body = el('div', { class: 'funnel-body' });
+    body.appendChild(el('div', { class: 'funnel-eyebrow' }, `Stage ${i + 1} · ${TEMP_LABEL[temp]}`));
+    body.appendChild(el('h3', { class: 'funnel-name' }, st.name || ''));
+    if (st.purpose) body.appendChild(el('p', { class: 'funnel-purpose' }, st.purpose));
+    if (st.key_metrics?.length) {
+      const grid = el('div', { class: 'funnel-metric-grid' });
+      for (const m of st.key_metrics) grid.appendChild(el('div', { class: 'funnel-metric' }, m));
+      body.appendChild(grid);
+    }
+
+    card.appendChild(rail);
+    card.appendChild(body);
+    timeline.appendChild(card);
+  });
+  wrap.appendChild(timeline);
+
+  return wrap;
+}
+
+function buildSvgFunnel(stages) {
+  if (!stages.length) return el('div');
+  const W = 900;
+  const stageH = 56;
+  const gap = 6;
+  const H = stages.length * (stageH + gap) + 40;
+  const wTop = 760;
+  const wBottom = 220;
+  const cx = W / 2;
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('class', 'funnel-svg');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+  // Gradients
+  const defs = document.createElementNS(svgNS, 'defs');
+  const tempColors = {
+    cold: ['#1e3a8a', '#3b82f6'],
+    warm: ['#0E5C3F', '#10804F'],
+    hot: ['#b8860b', '#F4B400'],
+    loyal: ['#6d28d9', '#a78bfa'],
+  };
+  for (const [name, [a, b]] of Object.entries(tempColors)) {
+    const g = document.createElementNS(svgNS, 'linearGradient');
+    g.setAttribute('id', `funnel-grad-${name}`);
+    g.setAttribute('x1', '0'); g.setAttribute('y1', '0');
+    g.setAttribute('x2', '1'); g.setAttribute('y2', '0');
+    const s1 = document.createElementNS(svgNS, 'stop');
+    s1.setAttribute('offset', '0%'); s1.setAttribute('stop-color', a);
+    const s2 = document.createElementNS(svgNS, 'stop');
+    s2.setAttribute('offset', '100%'); s2.setAttribute('stop-color', b);
+    g.appendChild(s1); g.appendChild(s2);
+    defs.appendChild(g);
+  }
+  svg.appendChild(defs);
+
+  stages.forEach((st, i) => {
+    const t0 = i / stages.length;
+    const t1 = (i + 1) / stages.length;
+    const w0 = wTop + (wBottom - wTop) * t0;
+    const w1 = wTop + (wBottom - wTop) * t1;
+    const y = 20 + i * (stageH + gap);
+    const temp = temperatureFor(i, stages.length);
+
+    const x0L = cx - w0 / 2, x0R = cx + w0 / 2;
+    const x1L = cx - w1 / 2, x1R = cx + w1 / 2;
+
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', `M${x0L} ${y} L${x0R} ${y} L${x1R} ${y + stageH} L${x1L} ${y + stageH} Z`);
+    path.setAttribute('fill', `url(#funnel-grad-${temp})`);
+    path.setAttribute('opacity', '0');
+    path.setAttribute('stroke', temp === 'hot' ? '#F4B400' : 'rgba(255,255,255,0.08)');
+    path.setAttribute('stroke-width', temp === 'hot' ? '1.5' : '0.5');
+    path.style.animation = `funnelFadeIn 360ms ease ${i * 90}ms forwards`;
+    svg.appendChild(path);
+
+    // Number badge (left)
+    const numBg = document.createElementNS(svgNS, 'circle');
+    numBg.setAttribute('cx', String(x0L - 18));
+    numBg.setAttribute('cy', String(y + stageH / 2));
+    numBg.setAttribute('r', '11');
+    numBg.setAttribute('fill', 'rgba(15,15,15,0.7)');
+    numBg.setAttribute('stroke', tempColors[temp][1]);
+    numBg.setAttribute('stroke-width', '1');
+    svg.appendChild(numBg);
+
+    const numText = document.createElementNS(svgNS, 'text');
+    numText.setAttribute('x', String(x0L - 18));
+    numText.setAttribute('y', String(y + stageH / 2 + 4));
+    numText.setAttribute('text-anchor', 'middle');
+    numText.setAttribute('fill', '#F4B400');
+    numText.setAttribute('font-family', "'JetBrains Mono', monospace");
+    numText.setAttribute('font-size', '11');
+    numText.setAttribute('font-weight', '600');
+    numText.textContent = String(i + 1);
+    svg.appendChild(numText);
+
+    // Stage label inside trapezoid
+    const label = document.createElementNS(svgNS, 'text');
+    label.setAttribute('x', String(cx));
+    label.setAttribute('y', String(y + stageH / 2 + 5));
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('fill', '#fff');
+    label.setAttribute('font-family', "'Inter', sans-serif");
+    label.setAttribute('font-size', '13.5');
+    label.setAttribute('font-weight', '600');
+    const name = (st.name || '').slice(0, 64);
+    label.textContent = name;
+    svg.appendChild(label);
+  });
+
+  // Wrap so we can scroll on narrow screens
+  const wrapper = el('div', { class: 'funnel-svg-wrap' });
+  wrapper.appendChild(svg);
+  return wrapper;
+}
+
+let funnelStylesInjected = false;
+function injectFunnelStyles() {
+  if (funnelStylesInjected) return;
+  funnelStylesInjected = true;
+  const css = `
+    .funnel-diagram { margin: 16px 0 28px; }
+    .funnel-svg-wrap { overflow-x: auto; padding: 8px 0 4px; }
+    .funnel-svg { width: 100%; max-width: 900px; height: auto; display: block; margin: 0 auto; }
+    @keyframes funnelFadeIn { to { opacity: 1; } }
+    .funnel-timeline { margin-top: 24px; display: flex; flex-direction: column; gap: 14px; }
+    .funnel-stage { display: grid; grid-template-columns: 56px 1fr; gap: 14px; padding: 16px 18px; border-radius: 14px;
+      background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06);
+      transition: transform 180ms ease, border-color 180ms ease; }
+    .funnel-stage:hover { transform: translateY(-1px); border-color: rgba(244,180,0,0.25); }
+    .funnel-rail { position: relative; display: flex; flex-direction: column; align-items: center; }
+    .funnel-num { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: #fff;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.08); }
+    .funnel-connector { flex: 1; width: 2px; margin-top: 6px; background: linear-gradient(to bottom, currentColor, transparent); opacity: 0.35; }
+    .funnel-stage.temp-cold .funnel-num { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #cfe0ff; }
+    .funnel-stage.temp-warm .funnel-num { background: linear-gradient(135deg, #0E5C3F, #10804F); color: #c8f0d8; }
+    .funnel-stage.temp-hot .funnel-num { background: linear-gradient(135deg, #b8860b, #F4B400); color: #1a1a1a; box-shadow: 0 0 0 1px #F4B400, 0 0 18px rgba(244,180,0,0.3); }
+    .funnel-stage.temp-loyal .funnel-num { background: linear-gradient(135deg, #6d28d9, #a78bfa); color: #ece5ff; }
+    .funnel-stage.temp-cold .funnel-rail { color: #3b82f6; }
+    .funnel-stage.temp-warm .funnel-rail { color: #10804F; }
+    .funnel-stage.temp-hot .funnel-rail { color: #F4B400; }
+    .funnel-stage.temp-loyal .funnel-rail { color: #a78bfa; }
+    .funnel-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--fg-mute, #888); margin-bottom: 4px; }
+    .funnel-name { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 600; margin: 0 0 8px;
+      color: var(--fg, #f0f0f0); line-height: 1.25; }
+    .funnel-purpose { margin: 0 0 12px; font-size: 14px; line-height: 1.55; color: var(--fg-dim, #c8c8c8); }
+    .funnel-metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .funnel-metric { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; padding: 6px 10px;
+      border-radius: 6px; border: 1px solid rgba(244,180,0,0.25); color: #F4B400;
+      background: rgba(244,180,0,0.04); }
+    @media (max-width: 720px) {
+      .funnel-metric-grid { grid-template-columns: 1fr; }
+      .funnel-name { font-size: 18px; }
+    }
+    details.mermaid-source { margin-top: 24px; padding: 8px 12px; border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 8px; }
+    details.mermaid-source summary { cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--fg-mute, #888); }
+    details.mermaid-source pre { margin-top: 10px; }
+  `;
+  const style = document.createElement('style');
+  style.textContent = css;
+  document.head.appendChild(style);
 }
 
 function renderHooks(run) {
@@ -823,25 +1032,13 @@ function makeInlineCode(text) {
 }
 
 // --- Init ---
+//
+// CRITICAL ORDER: nav handlers attach FIRST. If any individual renderer
+// throws (sub-skill JSON drift, missing field, etc.), nav still works and
+// the user can navigate to the panels that did render. Then each renderer
+// runs in its own try/catch so one failure doesn't kill the rest.
 
-if (!RUN || window.__RUN_MISSING__) {
-  $('#empty').hidden = false;
-  $$('.panel').forEach((p) => p.hidden = true);
-} else {
-  renderOverview(RUN);
-  renderMarket(RUN);
-  renderOffer(RUN);
-  renderStrategy(RUN);
-  renderHooks(RUN);
-  renderPageCopy(RUN);
-  renderEmails(RUN);
-  renderVSL(RUN);
-  renderDesign(RUN);
-  renderAudit(RUN);
-  $('#sidebarFoot').textContent = `${(RUN.intake?.client_name || 'Client').slice(0, 24)} · ${RUN.generated_at?.slice(0, 10)}`;
-}
-
-// Sidebar nav
+// 1. Wire up sidebar nav — always works, regardless of data quality
 $$('.nav-item').forEach((nav) => {
   nav.addEventListener('click', (e) => {
     e.preventDefault();
@@ -856,3 +1053,44 @@ $$('.nav-item').forEach((nav) => {
 // Show only the first panel by default
 const firstSection = 'overview';
 $$('.panel').forEach((p) => p.hidden = (p.id !== firstSection));
+
+// 2. Each renderer in its own try/catch so a single thrown error
+//    cannot abort the rest of the dashboard.
+function safeRender(name, panelId, fn) {
+  try {
+    fn(RUN);
+  } catch (err) {
+    console.error(`[${name}]`, err);
+    const root = document.getElementById(panelId);
+    if (!root) return;
+    root.innerHTML = '';
+    const card = el('div', { class: 'card', style: 'border-left:3px solid #e74c3c;padding:18px;' },
+      el('h3', { style: 'color:#e74c3c;margin:0 0 10px;' }, `Renderer error: ${name}`),
+      el('p', { style: 'color:var(--fg-mute,#888);margin:0 0 10px;font-size:13px;' },
+        'This panel hit an exception. The rest of the dashboard is still available — pick another tab. The error below tells you which sub-skill output is malformed.'),
+      el('pre', { style: 'font-size:11px;color:#e74c3c;white-space:pre-wrap;margin:0;' },
+        (err && err.stack) || (err && err.message) || String(err)),
+    );
+    root.appendChild(card);
+  }
+}
+
+// 3. Render
+if (!RUN || window.__RUN_MISSING__) {
+  $('#empty').hidden = false;
+  $$('.panel').forEach((p) => p.hidden = true);
+} else {
+  safeRender('Overview',  'overview',  renderOverview);
+  safeRender('Market',    'market',    renderMarket);
+  safeRender('Offer',     'offer',     renderOffer);
+  safeRender('Strategy',  'strategy',  renderStrategy);
+  safeRender('Hooks',     'hooks',     renderHooks);
+  safeRender('Page Copy', 'page-copy', renderPageCopy);
+  safeRender('Emails',    'emails',    renderEmails);
+  safeRender('VSL',       'vsl',       renderVSL);
+  safeRender('Design',    'design',    renderDesign);
+  safeRender('Audit',     'audit',     renderAudit);
+  try {
+    $('#sidebarFoot').textContent = `${(RUN.intake?.client_name || 'Client').slice(0, 24)} · ${(RUN.generated_at || '').slice(0, 10)}`;
+  } catch {}
+}

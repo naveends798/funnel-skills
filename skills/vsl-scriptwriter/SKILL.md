@@ -14,7 +14,7 @@ Receive `<slug>`. Read:
 1. `output/<slug>/intake.json`
 2. `output/<slug>/01-market.json`
 3. `output/<slug>/02-offer.json`
-4. `output/<slug>/04-hooks.json`
+4. `output/<slug>/04-hooks.json` **if it exists** (you may run in parallel with hook-engineer; if missing, use `02-offer.json.core_promise` as the opening hook)
 5. `${CLAUDE_PLUGIN_ROOT}/skills/vsl-scriptwriter/references/vsl-skeleton.md`
 
 ## Process
@@ -28,7 +28,7 @@ For each of the 12 beats, output:
 - `script`: actual narration text (full sentences)
 - `production_notes`: what's on screen during this beat (B-roll, slide, talking head, demo)
 
-Also output `full_script`: the entire narration as one continuous text, ready to feed a teleprompter.
+**Do NOT also write `full_script`** — postbuild concatenates the beats deterministically. Saves 1,800–2,700 words of duplicated output.
 
 ## Voice rules
 
@@ -40,7 +40,29 @@ Also output `full_script`: the entire narration as one continuous text, ready to
 
 ## Output
 
-`output/<slug>/07-vsl.json` per schema.
+Write `output/<slug>/07-vsl.json`. **Exact dashboard contract — `beats` and `full_script` MUST be top-level**, not nested under `vsl_long`:
+
+```json
+{
+  "duration_target": "14 minutes",
+  "beats": [
+    {
+      "beat": 1,
+      "name": "Hook",
+      "duration_sec": 30,
+      "script": "actual narration text — full sentences",
+      "production_notes": "what's on screen during this beat"
+    }
+  ],
+  "full_script": "<optional — postbuild concatenates beats[].script if missing>"
+}
+```
+
+**Hard rules — drift here has caused fields to silently drop from the dashboard:**
+
+- `beats` is a **top-level** field. Do NOT nest it under `vsl_long`, `long_form`, or any other wrapper.
+- Each beat uses `script` (NOT `voice_over`, `narration`, or `copy`).
+- `duration_target` is a **top-level** string (e.g. `"14 minutes"`), not nested under `vsl_long.estimated_runtime_minutes`.
 
 Print: `✓ VSL script: 12 beats, ~14 min → output/<slug>/07-vsl.json`
 
