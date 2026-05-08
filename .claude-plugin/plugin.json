@@ -1,6 +1,6 @@
 {
   "name": "funnel-skills",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "description": "Build a complete client funnel — page copy, 21 emails, VSL, branded landing page, and ad-builder prompts — from a single slash command. Audit it after launch with real metrics.",
   "author": {
     "name": "Naveen Dsouza",
